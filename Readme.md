@@ -68,6 +68,6 @@ This will up mongo db and the application
   - `GET  localhost:7003/url/:url`
 
 ### Author 
-**Anderson <andersons.code@gmail.com>**
+** Ezeh Uche <ezeokeke.remigius@gmail.com>**
 
-* Github: [@andersondsl](https://github.com/andersondsl)
+* Github: [@ezehuche](https://github.com/ezehuche)

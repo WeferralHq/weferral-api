@@ -32,8 +32,6 @@
     "mysql2": "^1.6.5",
     "nanoid": "^2.1.1",
     "palin": "^2.3.0",
-    "sequelize": "^5.16.0",
-    "sequelize-cli": "^5.5.0",
     "swagger-ui-express": "^4.0.7",
     "yenv": "^2.1.0"
   },
