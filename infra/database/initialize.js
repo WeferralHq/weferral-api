@@ -57,7 +57,7 @@ let buildTables = async function (knex) {
         table.timestamps(true, true);
     })
 
-    await create('campaign_template', function (table) {
+    await create('campaigns', function (table) {
         table.increments();
         table.integer('user_id').references('users.id');
         table.integer('product_id').references('products.id');
@@ -82,14 +82,15 @@ let buildTables = async function (knex) {
         table.string('email').notNullable().unique();
         table.string('referral_code').notNullable().unique();
         table.string('password');
+        table.enu('status', ['active', 'suspended', 'invited', 'disconnected']).defaultTo('active');
         table.bigInteger('awaiting_payout');
         table.bigInteger('total_payout');
         table.timestamps(true, true);
     });
-    await create('campaigns', function (table) {
+    await create('commissions', function (table) {
         table.increments();
         table.integer('referral_id').references('referrals.id');
-        table.integer('campaign_template_id').references('campaign_template.id');
+        table.integer('campaign_id').references('campaigns.id');
         table.jsonb('metadata');
         table.bigInteger('earnings');
         table.timestamps(true, true);
@@ -97,7 +98,7 @@ let buildTables = async function (knex) {
     await create('clicks', function (table) {
         table.increments();
         table.integer('referral_id').references('referrals.id');
-        table.integer('campaign_template_id').references('campaign_template.id');
+        table.integer('campaign_id').references('campaigns.id');
         table.jsonb('metadata');
         table.string('url');
         table.timestamps(true, true);
@@ -105,12 +106,13 @@ let buildTables = async function (knex) {
     await create('customers', function (table) {
         table.increments();
         table.integer('referral_id').references('referrals.id');
-        table.integer('campaign_template_id').references('campaign_template.id');
+        table.integer('campaign_id').references('campaigns.id');
         table.jsonb('metadata');
         table.timestamps(true, true);
     });
     await create('notification_templates', function (table) {
         table.increments();
+        table.integer('campaign_id').references('campaigns.id');
         table.string('name');
         table.string('event_name');
         table.text('message', 'longtext');
