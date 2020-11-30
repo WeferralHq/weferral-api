@@ -52,6 +52,9 @@ let buildTables = async function (knex) {
         table.integer('user_id').references('users.id');
         table.string('name');
         table.string('description');
+        table.string('image_url');
+        table.string('product_url');
+        table.text('details', 'longtext');
         table.bigInteger('price');
         table.string('currency').defaultTo('usd');
         table.timestamps(true, true);
@@ -103,6 +106,13 @@ let buildTables = async function (knex) {
         table.string('url');
         table.timestamps(true, true);
     });
+    await create('urls', function (table) {
+        table.increments();
+        table.integer('user_id').references('users.id');
+        table.string('shortned_url');
+        table.string('original_url');
+        table.timestamps(true, true);
+    });
     await create('customers', function (table) {
         table.increments();
         table.integer('referral_id').references('referrals.id');
@@ -150,6 +160,16 @@ let buildTables = async function (knex) {
         table.integer('user_id').references('users.id').onDelete('cascade');
         table.string('hash');
         table.timestamps(true, true);
+    });
+
+    await create('event_logs', function (table) {
+        table.increments();
+        table.integer('user_id');
+        table.string('log_level');
+        table.string('log_type');
+        table.string('log');
+        table.timestamps(true, true);
+
     });
 
     console.log("***** All Tables successfully created *****");

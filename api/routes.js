@@ -16,7 +16,7 @@ import { AllShops, createShop, findShop, updateShop, destroyShop } from './contr
 const router = new Router();
 
 router.get('/', (ctx, next) => {
-    ctx.body = 'Afiiliate Marketing Service';
+    ctx.body = 'Weferral Software';
 });
 
 // URLS
