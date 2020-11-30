@@ -171,6 +171,15 @@ let buildTables = async function (knex) {
         table.timestamps(true, true);
 
     });
+    await create('system_options', function (table) {
+        table.string('option').primary();
+        table.string('value');
+        table.boolean("public").defaultTo(false);
+        table.string('type');
+        table.string('data_type');
+        table.timestamps(true, true);
+
+    });
 
     console.log("***** All Tables successfully created *****");
 };
