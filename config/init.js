@@ -197,28 +197,34 @@ module.exports = function (initConfig) {
 
             }).createTable('referrals', function (table) {
                 table.increments();
-                table.integer('category_id').references('service_categories.id');
                 table.integer('created_by').references('users.id');
-                table.string('name').notNullable().unique();
-                table.string('description');
-                table.text('details', 'longtext');
-                table.boolean('published').defaultTo(false);
-                table.string('statement_descriptor');
-                table.integer('trial_period_days');
-                table.float('amount');
-                table.float('overhead');
-                table.string('currency').defaultTo('usd');
-                table.string('interval');
-                table.integer('interval_count').defaultTo(1);
-                table.enu('type', ['subscription', 'one_time', 'custom']).defaultTo('subscription');
-                table.boolean('subscription_prorate').defaultTo(true);
+                table.integer('approved_by').references('users.id');
+                table.string('name');
+                table.string('email').notNullable().unique();
+                table.string('referral_code').notNullable().unique();
+                table.string('password');
+                table.enu('status', ['active', 'inactive', 'suspended', 'invited', 'disconnected']).defaultTo('active');
+                table.bigInteger('awaiting_payout');
+                table.bigInteger('total_payout');
                 table.timestamps(true, true);
                 console.log("Created 'services_templates' table.");
+
+            }).createTable('customers', function (table) {
+                //Inherits the properties table.
+                table.inherits('properties');
+                table.increments();
+                table.integer('referral_id').references('referrals.id');
+                table.integer('campaign_id').references('campaigns.id');
+                table.boolean('underReview').defaultTo(false);
+                table.jsonb('metadata');
+                table.timestamps(true, true);
+                console.log("Created 'customers' table.");
 
             }).createTable('commissions', function (table) {
                 table.increments();
                 table.integer('referral_id').references('referrals.id');
                 table.integer('campaign_id').references('campaigns.id');
+                table.integer('customer_id').references('customers.id');
                 table.jsonb('metadata');
                 table.bigInteger('earnings');
                 table.timestamps(true, true);
@@ -228,6 +234,7 @@ module.exports = function (initConfig) {
                 table.increments();
                 table.integer('referral_id').references('referrals.id');
                 table.integer('campaign_id').references('campaigns.id');
+                table.integer('customer_id').references('customers.id');
                 table.jsonb('metadata');
                 table.string('url');
                 table.timestamps(true, true);
@@ -251,16 +258,6 @@ module.exports = function (initConfig) {
                 table.string('original_url');
                 table.timestamps(true, true);
                 console.log("Created 'urls' table.");
-
-            }).createTable('customers', function (table) {
-                //Inherits the properties table.
-                table.inherits('properties');
-                table.increments();
-                table.integer('referral_id').references('referrals.id');
-                table.integer('campaign_id').references('campaigns.id');
-                table.jsonb('metadata');
-                table.timestamps(true, true);
-                console.log("Created 'customers' table.");
 
             }).createTable('invoices', function (table) {
                 table.increments();

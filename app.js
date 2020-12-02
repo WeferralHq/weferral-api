@@ -87,20 +87,11 @@ module.exports = function (initConfig = null) {
 
 
             require('./api/users')(api, passport);
-            require('./api/funds')(api);
+            require('./api/campaigns')(api);
             require('./api/invoices')(api);
-            require('./api/service-instances')(api);
-            require('./api/service-instance-properties')(api);
-            require('./api/service-instance-messages')(api);
-            require('./api/service-instance-cancellations')(api);
-            require('./api/service-templates')(api);
-            require('./api/service-template-properties')(api);
-            require('./api/service-categories')(api);
+            require('./api/campaign-categories')(api);
             require('./api/system-options')(api);
-            require('./api/charge')(api);
             require('./api/event-logs')(api);
-            require('./api/notification-templates')(api);
-            require('./api/notifications')(api);
             require('./api/permissions')(api);
             require('./api/roles')(api);
             require('./api/analytics')(api);
