@@ -8,7 +8,7 @@
     "node": ">=11.8.0"
   },
   "scripts": {
-    "start": "node -r esm index.js",
+    "start": "node ./bin/start",
     "dev": "nodemon -r esm index.js",
     "clean": "rm -rf node_modules"
   },
