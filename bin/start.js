@@ -7,6 +7,7 @@ let async = require('async');
 let fs = require("fs");
 let path =require("path");
 let enableDestroy = require('server-destroy');
+let cors = require('cors');
 
 let startApp = function(app, callback=null){
     let debug = require('debug')('testpassport:server');
@@ -146,6 +147,14 @@ let startApp = function(app, callback=null){
             }));
             let api = express.Router();
 
+            app.use(function(req, res, next) {
+                res.header("Access-Control-Allow-Origin", "http://localhost:4100");
+                res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+                next();
+            });
+
+            //app.use(cors());
+
             app.get('/', function (req, res, next) {
                 if (req.url === '/setup') {
                     console.log(req.url);
@@ -155,11 +164,11 @@ let startApp = function(app, callback=null){
                 }
             });
 
-            app.use(express.static(path.join(__dirname, '../public')));
+            //app.use(express.static(path.join(__dirname, '../public')));
 
             //this routes all requests to serve index
             // view engine setup
-            app.set('views', path.join(__dirname, 'views'));
+            //app.set('views', path.join(__dirname, 'views'));
 
             let server = app.listen((process.env.PORT || 3001), function () {
             });
@@ -203,6 +212,7 @@ let startApp = function(app, callback=null){
 
             app.post("/setup", function (req, res, next) {
                 let conf = req.body;
+                console.log(JSON.stringify(conf));
 
                 if(!conf.admin_user || !conf.admin_password || !conf.company_name || !conf.company_email){
                     return res.status(400).json({error: 'All fields are required'});
@@ -218,9 +228,9 @@ let startApp = function(app, callback=null){
                     res.json({"error": "Error - " + e});
                 }
             });
-            app.get('/setup', function (request, response) {
+            /*app.get('/setup', function (request, response) {
                 response.sendFile(path.resolve(__dirname, '../public', 'index.html'))
-            });
+            });*/
         }
     }else{
       console.log("existing environment detected - starting app");

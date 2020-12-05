@@ -1,4 +1,5 @@
 var SystemOption = require("../models/system-options");
+var pjson = require('../package.json');
 //the default system options
 let systemOptions =
 {
@@ -60,6 +61,14 @@ let systemOptions =
             "type": "theme",
             "data_type": "color_picker"
         },
+
+        {
+            "option": "app_version",
+            "value": pjson.version,
+            public: false,
+            "type": "system",
+            "data_type": "system"
+        },
         {"option": "background_color", "value": "#ffffff", public: true, "type": "theme", "data_type": "color_picker"},
         {"option": "page_link_color", "value": "#30468a", public: true, "type": "theme", "data_type": "color_picker"},
         {"option": "header_text_color", "value": "#30468a", public: true, "type": "theme", "data_type": "color_picker"},
@@ -72,8 +81,6 @@ let systemOptions =
         {"option": "hostname", public: true, "type": "system", "data_type": "text"},
         {"option": "primary_theme_text_color", "value": "#FFFFFF", public: true, "type": "theme", "data_type": "color_picker"},
         {"option": "primary_theme_background_color", "value": "#000000", public: true, "type": "theme", "data_type": "color_picker"},
-        {"option": "home_featured_description", "value": "Start Selling Your Services Now!", public: true, "type": "content", "data_type": "text"},
-        {"option": "home_featured_heading", "value": "Welcome To ServiceBot!", public: true, "type": "content", "data_type": "text"},
         {"option": "breadcrumb_color", "value": "#FFFFFF", public: true, "type": "theme", "data_type": "color_picker"},
         {"option": "featured_service_show_all_button_text", "value": "Show All", public: true, "type": "featured services", "data_type": "text"},
         {"option": "featured_service_section_background_color", "value": "#FFFFFF", public: true, "type": "featured services", "data_type": "color_picker"},

@@ -5,9 +5,7 @@ var Permission = require("../models/permission");
 var SystemOption = require("../models/system-options");
 let options = require("./system-options");
 let User = require("../models/user");
-let store = require("./redux/store");
 let migrate = require("./migrations/migrate");
-let setOptions = require("./redux/actions").setOptions;
 //DO NOT MODIFY THE CORE SCHEMA!
 //If you do, make sure you know exactly what you are doing!
 
@@ -95,7 +93,7 @@ module.exports = function (initConfig) {
                 table.string('name');
                 table.string('email').notNullable().unique();
                 table.string('password');
-                table.enu('status', ['active', 'suspended', 'invited', 'flagged', 'disconnected']).defaultTo('flagged');
+                table.enu('status', ['active', 'suspended', 'invited', 'flagged', 'disconnected']).defaultTo('active');
                 table.string('phone');
                 table.timestamp('last_login');
                 table.timestamps(true, true);
@@ -210,8 +208,6 @@ module.exports = function (initConfig) {
                 console.log("Created 'services_templates' table.");
 
             }).createTable('customers', function (table) {
-                //Inherits the properties table.
-                table.inherits('properties');
                 table.increments();
                 table.integer('referral_id').references('referrals.id');
                 table.integer('campaign_id').references('campaigns.id');
@@ -389,6 +385,6 @@ module.exports = function (initConfig) {
                         });
                     });
             }
-        }).then(migrate()).then(store.initialize());
+        }).then(migrate());
     });
 };

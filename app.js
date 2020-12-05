@@ -3,7 +3,6 @@ var cookieParser = require('cookie-parser');
 var express = require('express');
 var expressSession = require('express-session');
 var flash = require('connect-flash');
-var swaggerJSDoc = require('swagger-jsdoc');
 var logger = require('morgan');
 var passport = require('passport');
 var path = require('path');
@@ -13,7 +12,6 @@ var helmet = require('helmet')
 module.exports = function (initConfig = null) {
     let envPath = path.join(__dirname, 'env/.env');
     require('dotenv').config({path: envPath});
-    let injectProperties = require("./middleware/property-injector")
 
     return require('./config/init.js')(initConfig).then(function (init) {
         return new Promise(function (resolve, reject) {
@@ -25,15 +23,6 @@ module.exports = function (initConfig = null) {
             var app = express();
             app.use(helmet());
             //var subpath = express();
-
-            //this is where we set routes to go through react
-            app.use(express.static(path.join(__dirname, 'public')));
-
-            //this routes all requests to serve index
-
-            // view engine setup
-            app.set('views', path.join(__dirname, 'views'));
-            //app.set('view engine', 'jade');
 
 
             // uncomment after placing your favicon in /public
@@ -57,7 +46,6 @@ module.exports = function (initConfig = null) {
             app.use(passport.session());
             app.use(require("./middleware/role-session")());
             app.use(flash());
-            app.use(injectProperties());
 
             //auth route doesn't go in express route so it doesn't need auth
             require("./api/auth")(app, passport);
@@ -88,13 +76,14 @@ module.exports = function (initConfig = null) {
 
             require('./api/users')(api, passport);
             require('./api/campaigns')(api);
-            require('./api/invoices')(api);
-            require('./api/campaign-categories')(api);
-            require('./api/system-options')(api);
-            require('./api/event-logs')(api);
-            require('./api/permissions')(api);
-            require('./api/roles')(api);
-            require('./api/analytics')(api);
+            require('./api/referralss')(api);
+            //require('./api/invoices')(api);
+            //require('./api/campaign-categories')(api);
+            //require('./api/system-options')(api);
+            //require('./api/event-logs')(api);
+            //require('./api/permissions')(api);
+            //require('./api/roles')(api);
+            //require('./api/analytics')(api);
 
 
             var configPath = path.join(__dirname, "./config/plugins.js");
