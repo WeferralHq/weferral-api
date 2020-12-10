@@ -151,7 +151,7 @@ module.exports = function (initConfig) {
                 table.string('description');
                 table.enu('reward_type', ['cash_reward', 'discount', 'discount_coupon', 'points','free_subscription']).defaultTo('cash_reward');
                 table.enu('commission_type', ['fixed', 'percentage_sale']).defaultTo('fixed');
-                table.enu('reward', ['reward_percentage', 'reward_amount']);
+                //table.enu('reward', ['reward_percentage', 'reward_amount']);
                 table.bigInteger('reward_price');
                 table.boolean('auto_approve').defaultTo(true);
                 table.integer('cookie_life');
