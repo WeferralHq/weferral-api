@@ -21,7 +21,7 @@ module.exports = function(router) {
         }
     });
 
-    router.post("/campaigns", function (req, res, next) {
+    router.post("/campaign", function (req, res, next) {
         req.body.user_id = req.user.get("id");
 
         Campaign.findAll("name", req.body.name, (campaigns) => {

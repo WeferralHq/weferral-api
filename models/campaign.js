@@ -3,14 +3,27 @@ let references = [
     {"model": User, "referenceField": "role_id", "direction": "to", "readOnly": true}
 ];
 let Campaign = require('./base/entity')("campaigns", references);
+let Url = require('./url');
+let default_notifications = require('../config/default-notifications');
 
 let createCampaign = function (options, callback) {
     let self = this;
     
     //Use the Entity create to create the campaign
-    self.create(function (err, created_user) {
+    self.create(function (err, created_campaign) {
         console.log(`Create Campaign: ${created_campaign}`);
-        callback(err, created_campaign);
+        let campN = created_campaign.data;
+        await default_notifications(campN.id);
+        let newUrl = new Url(
+            original_url = self.data.url,
+            user_id = campN.user_id,
+            campaign_id = campN.id
+        );
+
+        newUrl.shortUrl(function (err, result){
+            callback(err, created_campaign);
+        })
+        
     });
 };
 
