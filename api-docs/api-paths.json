@@ -1,0 +1,776 @@
+{
+    "/users": {
+        "get": {
+          "summary": "Gets all Users",
+          "tags": [
+            "users"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin",
+            "staff",
+            "developer"
+          ],
+          "operationId": "get_users",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "An array of Users",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/users"
+                }
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "/users/own": {
+        "get": {
+          "summary": "Gets the User object of the requester",
+          "tags": [
+            "users"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin",
+            "staff",
+            "user",
+            "developer"
+          ],
+          "operationId": "get_users_own",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "A users",
+              "schema": {
+                "$ref": "#/definitions/users"
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "/users/search": {
+        "get": {
+          "summary": "Gets all Users by search",
+          "tags": [
+            "users"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin",
+            "staff",
+            "developer"
+          ],
+          "operationId": "get_users_search",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "key",
+              "in": "query",
+              "description": "Key to search by",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "name": "value",
+              "in": "query",
+              "description": "Value to search for",
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "An array of Users",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/users"
+                }
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "/users/{id}": {
+        "get": {
+          "summary": "Gets all Users",
+          "tags": [
+            "users"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin",
+            "staff",
+            "user",
+            "developer"
+          ],
+          "operationId": "get_users_id",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "User id",
+              "required": true,
+              "type": "number",
+              "format": "double"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "A users",
+              "schema": {
+                "$ref": "#/definitions/users"
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        },
+        "put": {
+          "summary": "Updates a User",
+          "tags": [
+            "users"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin",
+            "staff",
+            "user",
+            "developer"
+          ],
+          "operationId": "put_users_id",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "User id",
+              "required": true,
+              "type": "number",
+              "format": "double"
+            },
+            {
+              "name": "user",
+              "in": "body",
+              "description": "user to create",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/users"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "An array of Users",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/users"
+                }
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        },
+        "delete": {
+          "summary": "Deletes a User",
+          "tags": [
+            "users"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin",
+            "staff",
+            "developer"
+          ],
+          "operationId": "delete_users_id",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "User id",
+              "required": true,
+              "type": "number",
+              "format": "double"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "A users",
+              "schema": {
+                "$ref": "#/definitions/users"
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "/users/register": {
+        "post": {
+          "summary": "Registers a new User",
+          "tags": [
+            "users"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin",
+            "staff",
+            "user"
+          ],
+          "operationId": "post_users_register",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "user",
+              "in": "body",
+              "description": "user to create",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/users"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "An array of Users",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/users"
+                }
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "/users/{id}/suspend": {
+        "post": {
+          "summary": "Suspend the User",
+          "tags": [
+            "users"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin",
+            "staff"
+          ],
+          "operationId": "post_users_id_suspend",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "user to suspend",
+              "required": true,
+              "type": "number"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "A user",
+              "schema": {
+                "$ref": "#/definitions/users"
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "/users/invite": {
+        "post": {
+          "summary": "Invites a new User",
+          "tags": [
+            "users"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin",
+            "staff"
+          ],
+          "operationId": "post_users_invite",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "email",
+              "in": "body",
+              "description": "user to create",
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Invitation URL",
+              "type": "string"
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "/roles": {
+        "get": {
+          "summary": "Gets all roles",
+          "tags": [
+            "roles"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin"
+          ],
+          "operationId": "get_roles",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "An array of roles",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/user_roles"
+                }
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        },
+        "post": {
+          "summary": "Create new role",
+          "tags": [
+            "roles"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin"
+          ],
+          "operationId": "post_roles",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "role",
+              "in": "body",
+              "description": "role to create",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/user_roles"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "An array of roles",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/user_roles"
+                }
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "/roles/search": {
+        "get": {
+          "summary": "Gets all roles by search",
+          "tags": [
+            "roles"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin"
+          ],
+          "operationId": "get_roles_search",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "key",
+              "in": "query",
+              "description": "Key to search by",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "name": "value",
+              "in": "query",
+              "description": "Value to search for",
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "An array of roles",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/user_roles"
+                }
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "/roles/{id}": {
+        "get": {
+          "summary": "Gets all roles",
+          "tags": [
+            "roles"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin"
+          ],
+          "operationId": "get_roles_id",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "role id",
+              "required": true,
+              "type": "number",
+              "format": "double"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "A roles",
+              "schema": {
+                "$ref": "#/definitions/user_roles"
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        },
+        "put": {
+          "summary": "Updates a role",
+          "tags": [
+            "roles"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin"
+          ],
+          "operationId": "put_roles_id",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "role id",
+              "required": true,
+              "type": "number",
+              "format": "double"
+            },
+            {
+              "name": "role",
+              "in": "body",
+              "description": "role to create",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/user_roles"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "An array of roles",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/user_roles"
+                }
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        },
+        "delete": {
+          "summary": "Deletes a role",
+          "tags": [
+            "roles"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin"
+          ],
+          "operationId": "delete_roles_id",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "role id",
+              "required": true,
+              "type": "number",
+              "format": "double"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "A roles",
+              "schema": {
+                "$ref": "#/definitions/user_roles"
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "/roles/manage-permissions": {
+        "get": {
+          "summary": "Gets all roles with permissions",
+          "tags": [
+            "roles"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin"
+          ],
+          "operationId": "get_roles_manage_permissions",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "An array of roles",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/roles_permissions"
+                }
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        },
+        "post": {
+          "summary": "Update role with permission",
+          "tags": [
+            "roles"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin"
+          ],
+          "operationId": "post_roles_manage_permissions",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "role",
+              "in": "body",
+              "description": "roles and permissions to update",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/roles_permissions"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "An array of roles",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/roles_permissions"
+                }
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+}
