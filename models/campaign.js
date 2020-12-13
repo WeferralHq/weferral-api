@@ -10,7 +10,7 @@ let createCampaign = function (options, callback) {
     let self = this;
     
     //Use the Entity create to create the campaign
-    self.create(function (err, created_campaign) {
+    self.create(async function (err, created_campaign) {
         console.log(`Create Campaign: ${created_campaign}`);
         let campN = created_campaign.data;
         await default_notifications(campN.id);

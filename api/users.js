@@ -1,12 +1,12 @@
-let auth = require('./middlewares/auth');
-let validate = require('./middlewares/validate');
+//let auth = require('./middlewares/auth');
+//let validate = require('./middlewares/validate');
 let User = require('../models/user');
 let Invitation = require('../models/invitation');
-let EventLogs = require('../models/event-log');
-let path = require("path");
-let mkdirp = require("mkdirp");
-let bcrypt = require("bcryptjs");
-let Role = require("../models/role");
+//let EventLogs = require('../models/event-log');
+//let path = require("path");
+//let mkdirp = require("mkdirp");
+//let bcrypt = require("bcryptjs");
+//let Role = require("../models/role");
 
 
 module.exports = function (router, passport) {

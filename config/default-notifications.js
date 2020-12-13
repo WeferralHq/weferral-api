@@ -1,4 +1,5 @@
-var NotificationTemplate = requires('../models/notification-template');
+let NotificationTemplate = require('../models/notification-template');
+
 let default_notifications = async function(campaign_id) {
     let templates = [
         {name:"password_reset",

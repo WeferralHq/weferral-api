@@ -1,4 +1,4 @@
-let Role = require("../models/role");
+let Role = require("../../models/role");
 let role_session = function(){
 
     return function(req, res, next) {

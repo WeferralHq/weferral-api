@@ -50,7 +50,6 @@
           "x-roles": [
             "admin",
             "staff",
-            "user",
             "developer"
           ],
           "operationId": "get_users_own",
@@ -142,7 +141,6 @@
           "x-roles": [
             "admin",
             "staff",
-            "user",
             "developer"
           ],
           "operationId": "get_users_id",
@@ -187,7 +185,6 @@
           "x-roles": [
             "admin",
             "staff",
-            "user",
             "developer"
           ],
           "operationId": "put_users_id",
@@ -290,7 +287,7 @@
           "x-roles": [
             "admin",
             "staff",
-            "user"
+            "developer"
           ],
           "operationId": "post_users_register",
           "security": [
@@ -762,6 +759,657 @@
                 "items": {
                   "$ref": "#/definitions/roles_permissions"
                 }
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "/campaigns": {
+        "get": {
+          "summary": "Gets all campaigns",
+          "tags": [
+            "campaigns"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin",
+            "staff",
+            "developer"
+          ],
+          "operationId": "get_campaigns",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "An array of campaigns",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/campaigns"
+                }
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        },
+        "post": {
+          "summary": "Create new campaign",
+          "tags": [
+            "campaigns"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin",
+            "staff",
+            "developer"
+          ],
+          "operationId": "post_campaigns",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "campaigns",
+              "in": "body",
+              "description": "campaign to create",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/campaigns"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "An array of campaigns",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/campaigns"
+                }
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "/campaigns/public": {
+        "get": {
+          "summary": "Gets all public campaigns",
+          "tags": [
+            "campaigns"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin",
+            "staff",
+            "developer"
+          ],
+          "operationId": "get_campaigns_public",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "An array of campaigns",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/campaigns"
+                }
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "/campaigns/search": {
+        "get": {
+          "summary": "Gets all campaigns by search",
+          "tags": [
+            "campaigns"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin",
+            "staff",
+            "developer"
+          ],
+          "operationId": "get_campaigns_search",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "key",
+              "in": "query",
+              "description": "Key to search by",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "name": "value",
+              "in": "query",
+              "description": "Value to search for",
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "An array of campaigns",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/campaigns"
+                }
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "/campaigns/{id}": {
+        "get": {
+          "summary": "Gets all campaigns",
+          "tags": [
+            "campaigns"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin",
+            "staff",
+            "developer"
+          ],
+          "operationId": "get_campaigns_id",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "campaign id",
+              "required": true,
+              "type": "number",
+              "format": "double"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "A campaigns",
+              "schema": {
+                "$ref": "#/definitions/campaigns"
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        },
+        "put": {
+          "summary": "Updates a campaigns",
+          "tags": [
+            "campaigns"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin",
+            "staff",
+            "developer"
+          ],
+          "operationId": "put_campaigns_id",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "campaign id",
+              "required": true,
+              "type": "number",
+              "format": "double"
+            },
+            {
+              "name": "campaigns",
+              "in": "body",
+              "description": "campaigns to create",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/campaigns"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "An array of campaigns",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/campaigns"
+                }
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        },
+        "delete": {
+          "summary": "Deletes a campaign",
+          "tags": [
+            "campaigns"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin",
+            "staff",
+            "developer"
+          ],
+          "operationId": "delete_campaigns_id",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "campaign id",
+              "required": true,
+              "type": "number",
+              "format": "double"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "A campaigns",
+              "schema": {
+                "$ref": "#/definitions/campaigns"
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "/referrals": {
+        "get": {
+          "summary": "Gets all referrals",
+          "tags": [
+            "referrals"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin",
+            "staff",
+            "developer"
+          ],
+          "operationId": "get_referrals",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "An array of referrals",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/referrals"
+                }
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "/referrals/own": {
+        "get": {
+          "summary": "Gets all referrals owned by user",
+          "tags": [
+            "referrals"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin",
+            "staff",
+            "developer"
+          ],
+          "operationId": "get_referrals_own",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "An array of referrals",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/referrals"
+                }
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "/referrals/search": {
+        "get": {
+          "summary": "Gets all referrals by search",
+          "tags": [
+            "referrals"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin",
+            "staff",
+            "developer"
+          ],
+          "operationId": "get_referrals_search",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "key",
+              "in": "query",
+              "description": "Key to search by",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "name": "value",
+              "in": "query",
+              "description": "Value to search for",
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "An array of referrals",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/referrals"
+                }
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "/referrals/{id}": {
+        "get": {
+          "summary": "Get a referral by id",
+          "tags": [
+            "referrals"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin",
+            "staff",
+            "developer"
+          ],
+          "operationId": "get_referrals_id",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "referral id",
+              "required": true,
+              "type": "number",
+              "format": "double"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "A referral",
+              "schema": {
+                "$ref": "#/definitions/referrals"
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        },
+        "put": {
+          "summary": "Updates a referral",
+          "tags": [
+            "referrals"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin",
+            "staff",
+            "developer"
+          ],
+          "operationId": "put_referrals_id",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "referrals id",
+              "required": true,
+              "type": "number",
+              "format": "double"
+            },
+            {
+              "name": "referrals",
+              "in": "body",
+              "description": "referral to update",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/referrals"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Updated referral",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/referrals"
+                }
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        },
+        "delete": {
+          "summary": "Deletes a referral",
+          "tags": [
+            "referrals"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin",
+            "staff"
+          ],
+          "operationId": "delete_referrals_id",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "referral id",
+              "required": true,
+              "type": "number",
+              "format": "double"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "A referral",
+              "schema": {
+                "$ref": "#/definitions/referrals"
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "/referrals/{id}/approve": {
+        "post": {
+          "summary": "Approves a referral",
+          "tags": [
+            "referrals"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin",
+            "staff",
+            "developer"
+          ],
+          "operationId": "post_referrals_id_approve",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "referral id",
+              "required": true,
+              "type": "number",
+              "format": "double"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "A referral",
+              "schema": {
+                "$ref": "#/definitions/referrals"
               }
             },
             "default": {

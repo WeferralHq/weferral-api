@@ -1,23 +1,20 @@
 let Campaign = require("../models/campaign");
-let dispatchEvent = require("../config/redux/store").dispatchEvent;
-let store = require("../config/redux/store");
 let validate = require("./middlewares/validate");
 
 module.exports = function(router) {
-
-    router.post('/campaigns/:id/republish', validate(Campaign), async function(req, res, next) {
+    router.post('/campaigns/:id/republish', validate(Campaign), function(req, res, next) {
         let campaign_object = res.locals.valid_object;
         if(!campaign_object.publish) {
-            let updatedCampaign = await campaign_object.republish();
-            res.json(updatedCampaign);
+            let updatedCampaign = campaign_object.republish();
+            return res.json(updatedCampaign);
         }
     });
 
-    router.post('/campaigns/:id/unpublish', validate(Campaign), async function(req, res, next) {
+    router.post('/campaigns/:id/unpublish', validate(Campaign), function(req, res, next) {
         let campaign_object = res.locals.valid_object;
         if(campaign_object.publish) {
-            let updatedCampaign = await campaign_object.unpublish();
-            res.json(updatedCampaign);
+            let updatedCampaign = campaign_object.unpublish();
+            return res.json(updatedCampaign);
         }
     });
 
@@ -26,7 +23,7 @@ module.exports = function(router) {
 
         Campaign.findAll("name", req.body.name, (campaigns) => {
             if (campaigns && campaigns.length > 0) {
-                res.status(400).json({error: "Campaign name already in use"});
+                return res.status(400).json({error: "Campaign name already in use"});
             }
         });
 
@@ -34,11 +31,11 @@ module.exports = function(router) {
         newCampaign.set("publish", true);
         newCampaign.createCampaign(function (err, result) {
             if (err) {
-                res.status(403).json({error: err});
+                return res.status(403).json({error: err});
             } else {
                 res.locals.json = result.data;
                 res.locals.valid_object = result;
-                res.status(200).json(result);
+                return res.status(200).json(result);
                 //next();
             }
         });

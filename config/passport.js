@@ -151,7 +151,7 @@ module.exports = function (passport) {
 
     let opts = {};
     opts.secretOrKey = process.env.SECRET_KEY;
-    opts.jwtFromRequest = ExtractJwt.fromAuthHeader();
+    opts.jwtFromRequest = ExtractJwt.fromAuthHeaderWithScheme("jwt");
 
     passport.use(new JwtStrategy(opts, async function (jwt_payload, done) {
         let query = jwt_payload.email ? {email: jwt_payload.email} : {id: jwt_payload.uid};

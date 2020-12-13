@@ -3,7 +3,6 @@ module.exports = {
         await knex.schema.alterTable("campaigns", table => {
             table.string('reward');
             table.boolean('private_campaign');
-            table.boolean('auto_approval');
             console.log("Updated 'campaigns' table.");
         });
         await knex.schema.alterTable("notification_templates", table => {

@@ -44,7 +44,7 @@ module.exports = function (initConfig = null) {
 
             app.use(passport.initialize());
             app.use(passport.session());
-            app.use(require("./middleware/role-session")());
+            app.use(require("./api/middlewares/role-session")());
             app.use(flash());
 
             //auth route doesn't go in express route so it doesn't need auth
@@ -76,7 +76,7 @@ module.exports = function (initConfig = null) {
 
             require('./api/users')(api, passport);
             require('./api/campaigns')(api);
-            require('./api/referralss')(api);
+            require('./api/referrals')(api);
             //require('./api/invoices')(api);
             //require('./api/campaign-categories')(api);
             //require('./api/system-options')(api);

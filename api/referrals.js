@@ -1,6 +1,6 @@
 let Referral = require("../models/campaign");
-let dispatchEvent = require("../config/redux/store").dispatchEvent;
-let store = require("../config/redux/store");
+//let dispatchEvent = require("../config/redux/store").dispatchEvent;
+//let store = require("../config/redux/store");
 let validate = require("./middlewares/validate");
 
 module.exports = function(router) {

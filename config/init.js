@@ -363,6 +363,7 @@ module.exports = function (initConfig) {
                     initialRoleMap.admin.push(element);
                     if (element === 'can_manage') {
                         initialRoleMap.staff.push(element);
+                        initialRoleMap.developer.push(element);
                     }
                 });
 

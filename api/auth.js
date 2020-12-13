@@ -5,7 +5,6 @@ let bcrypt = require("bcryptjs");
 let Role = require("../models/role");
 let ResetRequest = require("../models/password-reset-request")
 let User = require("../models/user");
-let dispatchEvent = require("../config/redux/store").dispatchEvent;
 
 module.exports = function(app, passport) {
 
