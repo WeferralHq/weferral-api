@@ -52,6 +52,7 @@ module.exports = function (initConfig = null) {
 
             //initialize api route
             var api = express.Router();
+            app.use("/api/v1", api);
 
             //force all requests to api route to look for token, if token is present in header the user will be logged in with taht token
             api.use(function (req, res, next) {
@@ -86,52 +87,42 @@ module.exports = function (initConfig = null) {
             //require('./api/analytics')(api);
 
 
-            var configPath = path.join(__dirname, "./config/plugins.js");
+            api.use(function (req, res, next) {
+                if (res.locals.json) {
+                    res.json(res.locals.json);
+                } else {
+                    next();
+                }
+            });
 
-            let pluginConf = architect.loadConfig(configPath);
-            pluginConf[0].app = app;
-            pluginConf[0].api = api;
-            architect.createApp(pluginConf, function (err, architectApp) {
-
-                architectApp.services.api.use(function (req, res, next) {
-                    if (res.locals.json) {
-                        res.json(res.locals.json);
-                    } else {
-                        next();
-                    }
-                })
-
-                architectApp.services.app.use('/api/v1', architectApp.services.api);
-
-                architectApp.services.app.get('*', function (req, res) {
-                    if (req.path.split("/")[3] == "embed" && req.method === 'GET') {
-                        res.removeHeader('X-Frame-Options');
-                    }
-                    res.sendFile(path.resolve(__dirname, 'public', 'index.html'))
-                })
-
-
-                // catch 404 and forward to error handler
-                architectApp.services.app.use(function (req, res, next) {
-                    var err = new Error('Not Found');
-                    err.status = 404;
-                    next(err);
-                });
-
-                // error handler
-                architectApp.services.app.use(function (err, req, res, next) {
-                    // set locals, only providing error in development
-                    res.locals.message = err.message;
-                    res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-                    // render the error page
-                    res.status(err.status || 500);
-                    //res.render('error');
-                });
-                resolve(app);
-
-
+            app.get('*', async function (req, res) {
+                if (req.path.split("/")[3] == "embed" && req.method === 'GET') {
+                    res.removeHeader('X-Frame-Options');
+                }
             })
+    
+    
+            // catch 404 and forward to error handler
+            app.use(function (req, res, next) {
+                var err = new Error('Not Found');
+                err.status = 404;
+                next(err);
+            });
+    
+            // error handler
+            app.use(function (err, req, res, next) {
+                // set locals, only providing error in development
+                res.locals.message = err.message;
+                console.error(err);
+                res.locals.error = req.app.get('env') === 'development' ? err : "unhandled error has happened in server";
+    
+                // send the error
+                res.status(err.status || 500).json({error: res.locals.error});
+    
+                //res.render('error');
+            });
+
+            resolve(app);
 
         })
     });

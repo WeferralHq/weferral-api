@@ -12,3 +12,5 @@ Referral.prototype.createReferral = async function (){
     var domain = self.data.email.substring(email.lastIndexOf("@") +1);
     var hashCode = md5(name + domain);
 }
+
+module.exports = Referral;

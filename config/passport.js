@@ -119,24 +119,6 @@ module.exports = function (passport) {
                     return done(null, false, {message: "invited user has no password"});
                 }
 
-                let store = require("../config/redux/store");
-
-                //todo : this needs to be moved in plugin
-                let userManager = store.getState(true).pluginbot.services.userManager[0]
-                if (userManager) {
-                    try {
-
-                        let authResult = await userManager.authenticate(result, password);
-                    } catch (e) {
-                        console.error(e)
-                        return done(null, false, {message: e}); // create the loginMessage and save it to session as flashdata
-
-                    }
-
-                } else {
-                    console.error("no user manager available...");
-                }
-
                 // if the user is found but the password is wrong
 
                 if (result.get("status") == "suspended") {

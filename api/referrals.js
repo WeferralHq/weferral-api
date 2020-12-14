@@ -1,4 +1,4 @@
-let Referral = require("../models/campaign");
+let Referral = require("../models/referral");
 //let dispatchEvent = require("../config/redux/store").dispatchEvent;
 //let store = require("../config/redux/store");
 let validate = require("./middlewares/validate");
