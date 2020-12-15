@@ -5,6 +5,8 @@ let references = [
 let Campaign = require('./base/entity')("campaigns", references);
 let Url = require('./url');
 let default_notifications = require('../config/default-notifications');
+let NotificationTemplate = require('./notification-template');
+//let async = require("async");
 
 let createCampaign = function (options, callback) {
     let self = this;
@@ -14,15 +16,13 @@ let createCampaign = function (options, callback) {
         console.log(`Create Campaign: ${created_campaign}`);
         let campN = created_campaign.data;
         await default_notifications(campN.id);
-        let newUrl = new Url(
-            original_url = self.data.url,
-            user_id = campN.user_id,
-            campaign_id = campN.id
-        );
+        let newUrl = new Url({
+            "original_url": self.data.original_url,
+            "campaign_id": campN.id
+        });
 
-        newUrl.shortUrl(function (err, result){
-            callback(err, created_campaign);
-        })
+        newUrl.create();
+        callback(err, created_campaign);
         
     });
 };
@@ -49,11 +49,40 @@ Campaign.prototype.updateCampaign = async function () {
 Campaign.prototype.deleteCampaign = function (callback) {
     let self = this;
     new Promise(function (resolve, reject) {
-        self.delete(function (err, deleted_user) {
-            if (err) {
-                return reject('Campaign cannot be deleted, must be unpublish. Campaign has connected records!');
-            }
-            return resolve(`Campaign ${self.data.id} has been deleted from database!`);
+        NotificationTemplate.findAll("campaign_id", self.data.id, function(templates) {
+            templates.map(function (template){
+                template.delete(function (err, result) {
+                    if(!err) {
+                        return resolve(result);
+                    } else {
+                        return reject(err);
+                    }
+                });
+            });
+        })
+    }).then(function(){
+        return new Promise(function (resolve, reject) {
+            Url.findAll("campaign_id", self.data.id, function(urls) {
+                urls.map(function (url){
+                    url.delete(function (err, result) {
+                        if(!err) {
+                            return resolve(result);
+                        } else {
+                            return reject(err);
+                        }
+                    });
+                });
+            })
+        });
+
+    }).then(function (){
+        return new Promise(function (resolve, reject) {
+            self.delete(function (err, deleted_campaign) {
+                if (err) {
+                    return reject('Campaign cannot be deleted, must be unpublish. Campaign has connected records!');
+                }
+                return resolve(`Campaign ${self.data.id} has been deleted from database!`);
+            });
         });
     }).then(function () {
         callback(null, `Campaign ID: ${self.data.id} has been removed.`);

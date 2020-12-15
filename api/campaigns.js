@@ -19,7 +19,7 @@ module.exports = function(router) {
     });
 
     router.post("/campaign", function (req, res, next) {
-        req.body.user_id = req.user.get("id");
+        //req.body.user_id = req.user.get("id");
 
         Campaign.findAll("name", req.body.name, (campaigns) => {
             if (campaigns && campaigns.length > 0) {
@@ -41,6 +41,20 @@ module.exports = function(router) {
         });
     });
 
+    router.delete("/campaign/:id", function (req, res, next) {
+        let id = req.params.id;
+
+        Campaign.findById(id,  function (delCamp) {
+            delCamp.deleteCampaign(function (err, result) {
+                if (err) {
+                    return res.status(403).json({error: err});
+                } else {
+                    return res.status(200).json(result);
+                    //next();
+                }
+            })
+        })
+    })
     require("./entity")(router, Campaign, "campaigns");
 
     return router;

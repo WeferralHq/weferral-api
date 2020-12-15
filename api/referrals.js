@@ -2,6 +2,7 @@ let Referral = require("../models/referral");
 //let dispatchEvent = require("../config/redux/store").dispatchEvent;
 //let store = require("../config/redux/store");
 let validate = require("./middlewares/validate");
+let Campaign = require('../models/campaign');
 
 module.exports = function(router) {
 
@@ -56,4 +57,45 @@ module.exports = function(router) {
             }
         });
     });
+
+    router.post('/api/v1/referral/:campName', function(req, res) {
+        let campName = req.params.campName;
+
+        Referral.findAll("email", req.body.email, (referral) => {
+            if (referral && referral.length > 0) {
+                return res.status(400).json({error: "This email address has alraedy signed up for this Referral Program"});
+            }
+        });
+        let columnName = ['fname', 'lname', 'email', 'password', 'status'];
+        req.body.name = `${req.body.fname} ${req.body.lname}`;
+        if(req.body.password){
+            let password = require("bcryptjs").hashSync(req.body.password, 10);
+            let mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+            let metaArr = [];
+            if (!req.body.email.match(mailFormat)) {
+                res.status(400).json({error: 'Invalid email format'});
+            }else {
+                let newReferral = new Referral(req.body);
+                newReferral.set('password', password);
+                Object.keys(req.body).forEach((key, index) => {
+                    if(columnName.indexOf(key) < 0){
+                        metaArr.push(req.body[key]);
+                    }
+                });
+                let metadata = Object.assign({}, metaArr);
+                newReferral.set('metadata', metadata);
+                newReferral.createReferral(function (err, result) {
+                    if (err) {
+                        res.status(403).json({error: err});
+                    } else {
+                        res.status(200).json({result});
+                    }
+                });
+            }
+        }
+
+        
+
+        Campaign.findOne('name', campName, function(result) {})
+    })
 }

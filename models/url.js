@@ -16,12 +16,13 @@ let generateShortUrl = async function() {
 
 
 Url.prototype.shortUrl = async function () {
+    let self = this;
     let result = {}
-    self.data.shortned_url = await generateShortUrl();
+    //self.data.shortned_url = await generateShortUrl();
 
-    self.create(function (err, created_url) {
+    self.create(function (created_url) {
         console.log(`Create Url: ${created_url}`);
-        callback(err, created_url);
+        return created_url;
     });
 
     
