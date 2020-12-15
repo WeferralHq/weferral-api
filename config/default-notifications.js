@@ -34,20 +34,20 @@ let default_notifications = async function(campaign_id) {
         model:"user",
         send_email:true
     },
-    {name:"referrer_suspension",
-        event_name:"referrer_suspended",
+    {name:"participant_suspension",
+        event_name:"participant_suspended",
         campaign_id: campaign_id,
         message:"Your Weferral account has been suspended. Please contact your service provider and check the state of your <a href='[[_hostname]]/profile'>account</a>.",
         subject:"Weferral Account Suspended",
-        model:"referral",
+        model:"participant",
         send_email:true
     },
-    {name:"referrer_approval",
-        event_name:"referrer_approved",
+    {name:"participant_approval",
+        event_name:"participant_approved",
         campaign_id: campaign_id,
         message:"Your Weferral account has been approved. You can now login to your <a href='[[_hostname]]/profile'>account</a> and start sharing your referral links.",
         subject:"Weferral Account Approved",
-        model:"referral",
+        model:"participant",
         send_email:true
     }
     ]

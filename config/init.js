@@ -193,7 +193,7 @@ module.exports = function (initConfig) {
                 table.timestamp('created_at').defaultTo(knex.fn.now());
                 console.log("created notifications table");
 
-            }).createTable('referrals', function (table) {
+            }).createTable('participants', function (table) {
                 table.increments();
                 table.integer('created_by').references('users.id');
                 table.integer('approved_by').references('users.id');
@@ -209,7 +209,7 @@ module.exports = function (initConfig) {
 
             }).createTable('customers', function (table) {
                 table.increments();
-                table.integer('referral_id').references('referrals.id');
+                table.integer('participant_id').references('participants.id');
                 table.integer('campaign_id').references('campaigns.id');
                 table.boolean('underReview').defaultTo(false);
                 table.jsonb('metadata');
@@ -218,7 +218,7 @@ module.exports = function (initConfig) {
 
             }).createTable('commissions', function (table) {
                 table.increments();
-                table.integer('referral_id').references('referrals.id');
+                table.integer('participant_id').references('participants.id');
                 table.integer('campaign_id').references('campaigns.id');
                 table.integer('customer_id').references('customers.id');
                 table.jsonb('metadata');
@@ -228,7 +228,7 @@ module.exports = function (initConfig) {
 
             }).createTable('clicks', function (table) {
                 table.increments();
-                table.integer('referral_id').references('referrals.id');
+                table.integer('participant_id').references('participants.id');
                 table.integer('campaign_id').references('campaigns.id');
                 table.integer('customer_id').references('customers.id');
                 table.jsonb('metadata');

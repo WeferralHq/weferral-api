@@ -1,8 +1,8 @@
 let Campaign = require('./campaign');
-let Referral = require('./referral');
+let Participant = require('./participant');
 let references = [
     {"model": Campaign, "referenceField": "role_id", "direction": "to", "readOnly": true},
-    {"model": Referral, "referenceField": "role_id", "direction": "to", "readOnly": true}
+    {"model": Participant, "referenceField": "role_id", "direction": "to", "readOnly": true}
 ];
 let Click = require('./base/entity')("clicks", references);
 let geoip = require('geoip-lite');

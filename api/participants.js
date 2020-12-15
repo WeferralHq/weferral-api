@@ -1,4 +1,4 @@
-let Referral = require("../models/referral");
+let Participant = require("../models/participant");
 //let dispatchEvent = require("../config/redux/store").dispatchEvent;
 //let store = require("../config/redux/store");
 let validate = require("./middlewares/validate");
@@ -6,9 +6,9 @@ let Campaign = require('../models/campaign');
 
 module.exports = function(router) {
 
-    router.get('/api/v1/checkhash/:thisId', validate(Referral), function(req, res) {
+    router.get('/api/v1/checkhash/:thisId', validate(Participant), function(req, res) {
         var url_Id = req.param('thisId');
-        Referral.findOne('referral_code', url_Id, function (rows){
+        Participant.findOne('referral_code', url_Id, function (rows){
           if(rows.length !== 0){
             res.json(200);
           } else {
@@ -19,7 +19,7 @@ module.exports = function(router) {
 
     router.get('/api/v1/verifyhash/:thisId', function(req, res) {
         var url_Id = req.param('thisId');
-        Referral.findAll('referral_code', url_Id, function(err, rows, fields){
+        Participant.findAll('referral_code', url_Id, function(err, rows, fields){
             if(err) throw err;
             if(rows.length !== 0) {
                 var approvedBy = rows.data.approved_by;
@@ -58,11 +58,11 @@ module.exports = function(router) {
         });
     });
 
-    router.post('/api/v1/referral/:campName', function(req, res) {
+    router.post('/api/v1/participant/:campName', function(req, res) {
         let campName = req.params.campName;
 
-        Referral.findAll("email", req.body.email, (referral) => {
-            if (referral && referral.length > 0) {
+        Participant.findAll("email", req.body.email, (participant) => {
+            if (participant && participant.length > 0) {
                 return res.status(400).json({error: "This email address has alraedy signed up for this Referral Program"});
             }
         });
@@ -75,16 +75,16 @@ module.exports = function(router) {
             if (!req.body.email.match(mailFormat)) {
                 res.status(400).json({error: 'Invalid email format'});
             }else {
-                let newReferral = new Referral(req.body);
-                newReferral.set('password', password);
+                let newParticipant = new Participant(req.body);
+                newParticipant.set('password', password);
                 Object.keys(req.body).forEach((key, index) => {
                     if(columnName.indexOf(key) < 0){
                         metaArr.push(req.body[key]);
                     }
                 });
                 let metadata = Object.assign({}, metaArr);
-                newReferral.set('metadata', metadata);
-                newReferral.createReferral(function (err, result) {
+                newParticipant.set('metadata', metadata);
+                newParticipant.createParticipant(function (err, result) {
                     if (err) {
                         res.status(403).json({error: err});
                     } else {
