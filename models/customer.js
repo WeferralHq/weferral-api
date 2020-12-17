@@ -1,0 +1,1 @@
+let Customer = require("./base/entity")("customers");

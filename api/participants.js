@@ -6,14 +6,22 @@ let Campaign = require('../models/campaign');
 
 module.exports = function(router) {
 
-    router.get('/api/v1/checkhash/:thisId', validate(Participant), function(req, res) {
-        var url_Id = req.param('thisId');
+    router.get('/checkhash/:referral_code', validate(Participant), function(req, res) {
+        let url_Id = req.param('referral_code');
         Participant.findOne('referral_code', url_Id, function (rows){
-          if(rows.length !== 0){
-            res.json(200);
-          } else {
-            res.json(401);
-          }
+            if (rows && rows.length > 0) {
+                if(rows.data.status !== 'active') {
+                    let campId = rows.data.campaign_id;
+                    Campaign.findById(campId, function(err, result) {
+                        if(err){
+                            return res.status(401).json('Not found');
+                        }
+                        return res.status(200).json({'cookie_life': result.data.cookie_life});
+                    })
+                }
+            } else {
+                return res.status(401).json('Not found');
+            }
         });
     });
 
@@ -58,16 +66,16 @@ module.exports = function(router) {
         });
     });
 
-    router.post('/api/v1/participant/:campName', function(req, res) {
+    router.post('/participant/:campName', function(req, res) {
         let campName = req.params.campName;
+        campName = campName.replace(/[^a-zA-Z ]/g, " ");
 
         Participant.findAll("email", req.body.email, (participant) => {
             if (participant && participant.length > 0) {
                 return res.status(400).json({error: "This email address has alraedy signed up for this Referral Program"});
             }
         });
-        let columnName = ['fname', 'lname', 'email', 'password', 'status'];
-        req.body.name = `${req.body.fname} ${req.body.lname}`;
+        let columnName = ['fname', 'lname', 'email', 'password'];
         if(req.body.password){
             let password = require("bcryptjs").hashSync(req.body.password, 10);
             let mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -75,27 +83,42 @@ module.exports = function(router) {
             if (!req.body.email.match(mailFormat)) {
                 res.status(400).json({error: 'Invalid email format'});
             }else {
-                let newParticipant = new Participant(req.body);
-                newParticipant.set('password', password);
-                Object.keys(req.body).forEach((key, index) => {
-                    if(columnName.indexOf(key) < 0){
-                        metaArr.push(req.body[key]);
+                new Promise(function (resolve, reject) {
+                    Campaign.findOne('name', campName, function (result) {
+                        if (result.data) {
+                            return resolve(result.data);
+                        } else {
+                            return reject('ERROR: No Campaign Found!');
+                        }
+                    });
+                }).then(function (campaign) {
+                    let newParticipant = new Participant(req.body);
+                    newParticipant.set('password', password);
+                    Object.keys(req.body).forEach((key, index) => {
+                        if (columnName.indexOf(key) < 0) {
+                            metaArr.push(`${key}: ${req.body[key]}`);
+                        }
+                    });
+                    let metadata = Object.assign({}, metaArr);
+                    newParticipant.set('metadata', metadata);
+                    newParticipant.set('campaign_id', campaign.id);
+                    newParticipant.set('name', `${req.body.fname} ${req.body.lname}`);
+                    if (campaign.auto_approve === true) {
+                        newParticipant.set('status', 'active');
                     }
-                });
-                let metadata = Object.assign({}, metaArr);
-                newParticipant.set('metadata', metadata);
-                newParticipant.createParticipant(function (err, result) {
-                    if (err) {
-                        res.status(403).json({error: err});
-                    } else {
-                        res.status(200).json({result});
-                    }
-                });
+                    newParticipant.createParticipant(function (err, result) {
+                        if (err) {
+                            return res.status(403).json({ error: err });
+                        } else {
+                            return res.status(200).json({ result });
+                        }
+                    });
+                })
             }
         }
+    });
 
-        
+    require("./entity")(router, Participant, "participants");
 
-        Campaign.findOne('name', campName, function(result) {})
-    })
+    return router;
 }

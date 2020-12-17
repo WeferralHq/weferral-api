@@ -1,0 +1,1 @@
+let Commission = require("./base/entity")("commissions");

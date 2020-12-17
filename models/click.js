@@ -21,7 +21,7 @@ Click.prototype.createClick = async function () {
     let result = {};
     
     self.data.metadata.clickTime = new Date().toISOString();  
-    self.data.metadata.location = getLocationMetadata(self.data.metadata.ip);
+    self.data.location = getLocationMetadata(self.data.metadata.ip);
 
     result = await Url.findOne('shortned_url', url);
     await self.create();
