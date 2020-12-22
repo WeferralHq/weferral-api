@@ -78,6 +78,7 @@ module.exports = function (initConfig = null) {
             require('./api/users')(api, passport);
             require('./api/campaigns')(api);
             require('./api/participants')(api);
+            require('./api/clicks')(api);
             //require('./api/invoices')(api);
             //require('./api/campaign-categories')(api);
             //require('./api/system-options')(api);

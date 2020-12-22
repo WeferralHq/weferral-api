@@ -98,7 +98,7 @@ User.prototype.unsuspend = function (callback) {
     }
     else {
         if (!self.data.customer_id) {
-            callback('User is deleted in Stripe', null);
+            callback('User is deleted', null);
         } else {
             callback('User is not suspended', null);
         }

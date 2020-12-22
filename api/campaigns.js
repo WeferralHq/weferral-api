@@ -10,6 +10,14 @@ module.exports = function(router) {
         }
     });
 
+    router.get('/campaigns', function (req, res, next) {
+        Campaign.findAll(true, true, (campaigns) => {
+            if (campaigns && campaigns.length > 0) {
+                return res.status(200).json(campaigns);
+            }
+        });
+    });
+
     router.post('/campaigns/:id/unpublish', validate(Campaign), function(req, res, next) {
         let campaign_object = res.locals.valid_object;
         if(campaign_object.publish) {
