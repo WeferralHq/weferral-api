@@ -24,6 +24,12 @@ module.exports = function (initConfig = null) {
             app.use(helmet());
             //var subpath = express();
 
+            app.use(function(req, res, next) {
+                res.header("Access-Control-Allow-Origin", "*");
+                res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+                next();
+            });
+
 
             // uncomment after placing your favicon in /public
             //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -79,6 +85,7 @@ module.exports = function (initConfig = null) {
             require('./api/campaigns')(api);
             require('./api/participants')(api);
             require('./api/clicks')(api);
+            require('./api/notification-templates')(api);
             //require('./api/invoices')(api);
             //require('./api/campaign-categories')(api);
             //require('./api/system-options')(api);

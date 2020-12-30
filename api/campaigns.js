@@ -13,10 +13,29 @@ module.exports = function(router) {
     router.get('/campaigns', function (req, res, next) {
         Campaign.findAll(true, true, (campaigns) => {
             if (campaigns && campaigns.length > 0) {
-                return res.status(200).json(campaigns);
+                let camps = (campaigns.map(entity => entity.data));
+                return res.status(200).json(camps);
             }
         });
     });
+
+    router.get("/campaign/:id", function (req, res, next) {
+        let id = req.params.id;
+
+        Campaign.findById(id,  function (result) {
+            return res.status(200).json(result);
+        })
+    });
+
+    router.post('/campaign-page/:id', function(req, res, next){
+        let id = req.params.id;
+
+        Campaign.findById(id, async function (result) {
+            result.set('description', req.body.description);
+            let UpdatedCampaign = await result.update();
+            return res.status(200).json({'message': 'Successfully Updated'});
+        })
+    })
 
     router.post('/campaigns/:id/unpublish', validate(Campaign), function(req, res, next) {
         let campaign_object = res.locals.valid_object;

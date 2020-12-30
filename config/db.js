@@ -16,6 +16,10 @@ var knex = require('knex')({
     pool: { min: 0, max: 10 }
 });
 
+/*knex.schema.createTable("rewards", table => {
+    table.date()
+})*/
+
 
 
 module.exports = knex;
