@@ -51,6 +51,15 @@ module.exports = {
             table.boolean('payout').defaultTo(false);
             console.log("Updated 'commissions' table.");
         });
+        await knex.schema.createTable("webhooks", table => {
+            table.increments();
+            table.integer('campaign_id').references('campaigns.id');
+            table.string('endpoint_url').unique().notNullable();
+            table.string("health");
+            table.boolean("async_lifecycle").notNullable().defaultTo(true);
+            table.timestamps(true, true);
+            console.log("Created 'webhooks ' table.");
+        });
 
         return await knex;
 
@@ -66,7 +75,8 @@ module.exports = {
             table.dropColumns('commission_type');
             table.dropColumns('currency');
             table.dropColumns('payout');
-        })
+        });
+        await knex.schema.dropTable("webhooks");
 
         return await knex;
     }
