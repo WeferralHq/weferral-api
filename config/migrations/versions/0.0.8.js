@@ -42,14 +42,31 @@ module.exports = {
             table.bigInteger('quantityRedeemed');
             table.timestamps(true, true);
         });
+        await knex.schema.alterTable("commissions", table => {
+            table.integer('conversion_id').references('conversions.id');
+            table.bigInteger('conversion_amount');
+            table.bigInteger('amount');
+            table.string('commission_type');
+            table.string('currency').defaultTo('usd');
+            table.boolean('payout').defaultTo(false);
+            console.log("Updated 'commissions' table.");
+        });
 
         return await knex;
 
     },
     down : async function(knex){
-        await knex.schema.dropTable("purchase")
+        await knex.schema.dropTable("conversions")
         await knex.schema.dropTable("rewards")
         await knex.schema.dropTable("redemptions")
+        await knex.schema.alterTable("commissions", table => {
+            table.dropColumns('conversion_id');
+            table.dropColumns('conversion_amount');
+            table.dropColumns('amount');
+            table.dropColumns('commission_type');
+            table.dropColumns('currency');
+            table.dropColumns('payout');
+        })
 
         return await knex;
     }

@@ -141,7 +141,7 @@ module.exports = function (initConfig) {
                 table.string('name');
                 table.string('description');
                 table.timestamps(true, true);
-                console.log("Created 'service_categories' table.");
+                console.log("Created 'campaign_categories' table.");
             }).createTable('campaigns', function (table) {
                 table.increments();
                 table.integer('user_id').references('users.id').onDelete('cascade');

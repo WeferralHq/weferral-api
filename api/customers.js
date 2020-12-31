@@ -3,7 +3,7 @@ let Participant = require('../models/participant');
 
 module.exports = function(router) {
 
-    router.post('./customer/:referral_code/events', function(req, res){
+    router.post('/customer/:referral_code/events', function(req, res){
         let referral_code = req.params.referral_code;
         let uniqueId = req.body.userId;
         let columnName = ['name', 'email'];
