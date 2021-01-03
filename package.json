@@ -1,6 +1,6 @@
 {
   "name": "weferral-api",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "description": "Weferral API",
   "private": true,
   "engines": {

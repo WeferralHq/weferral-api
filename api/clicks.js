@@ -19,6 +19,7 @@ module.exports = function(router) {
 
     router.get('/click/:referral_code', function(req, res) {
         let url_Id = req.params.referral_code;
+        let unique_id = '';
         Participant.findOne('referral_code', url_Id, function (rows){
             if (rows.data) {
                 if(rows.data.status === 'active') {
@@ -28,8 +29,14 @@ module.exports = function(router) {
                         'campaign_id': campaign_id,
                         'participant_id': participant_id
                     });
-                    let unique_id = getUniqueCustId();
-                    let newCust = new Customer({'unique_id': unique_id})
+                    if(!req.body.wefUid){
+                        unique_id = getUniqueCustId();
+                    }
+                    let newCust = new Customer({
+                        'unique_id': unique_id,
+                        'campaign_id': campaign_id,
+                        'participant_id': participant_id
+                    })
                     newCust.createCustomer(function (err, result) {
                         if (!err) {
                             newClick.set('ip', req.connection.remoteAddress);

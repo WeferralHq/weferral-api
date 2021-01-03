@@ -9,10 +9,10 @@ let references = [
 let Reward = require('./reward');
 let Commission = require("./base/entity")("commissions", references);
 
-let totalRewardAmount = function(id, callback) {
-    Commission.getSumOfColumnFiltered('amount', 'id', id, function(totalRewardAmount) {
+let totalRewardAmount = function(id) {
+    Commission.getSumOfColumnFiltered('amount', 'campaign_id', id, function(totalRewardAmount) {
         let total = (totalRewardAmount == null ? 0 : totalRewardAmount);
-        callback(null, total);
+        return total;
     });
 }
 
@@ -52,33 +52,64 @@ let dateScheduledFor = function(payout_term){
 }
 
 
-Commission.prototype.CreateCommission = async function() {
+let CreateCommission = function(campaign, callback) {
     let self = this;
+    //let totalAmount = 0;
+    //Commission.findAll('cam')
+    let campaignId = campaign.data.id;
+    
 
-    self.create(function (result){
-        let campaignId = campaign.data.id;
-        let totalAmount = totalRewardAmount(campaignId);
-        if(totalAmount !== null && totalAmount >= campaign.data.minimum_cash_payout){
-            Reward.findOne('campaign_id', campaignId, function(reward){
-                if(reward.data && reward.data.length > 0){
-                    let newCredit = reward.data.assignedCredit + self.data.amount;
-                    reward.data.assignedCredit = newCredit;
-                    await reward.update();
-                } else {
-                    let newReward = new Reward({
-                        'assignedCredit': self.data.amount,
-                        'dateScheduledFor': dateScheduledFor(campaign.data.payout_terms)
-                    });
+    self.create( function (result){  
+        new Promise(function (resolve, reject) {
+            Commission.getSumOfColumnFiltered('amount', 'campaign_id', campaignId, function(tAmt){
+                return resolve(tAmt);
+            })
+        }).then(function(totalAmount){
+            return new Promise(function (resolve, reject) {
+                let total = parseInt(totalAmount);
+                if (total >= campaign.data.minimum_cash_payout) {
+                    Reward.findOne('campaign_id', campaignId, async function (reward) {
+                        if (reward.data) {
+                            //let newCredit = reward.data.assignedCredit + self.data.amount;
+                            reward.data.assignedCredit = total;
+                            await reward.update();
+                            return resolve(result);
+                        } else {
+                            let newReward = new Reward({
+                                'assignedCredit': total,
+                                'currency': self.data.currency || 'usd',
+                                'type': campaign.data.reward_type,
+                                'campaign_id': campaignId,
+                                'participant_id': self.data.participant_id,
+                                'dateScheduledFor': dateScheduledFor(campaign.data.payout_terms)
+                            });
 
-                    newReward.create(function(new_reward, callback){
-                        callback(new_reward);
-                    });
+                            newReward.create(function (new_reward) {
+                                return resolve(new_reward);
+                                //callback(result);
+                            });
+                        }
+                    })
                 }
             })
-        }
+        }).then(function () {
+            callback(null, result);
+        }).catch(function (err) {
+            callback(err, null);
+        });
 
     })
-}
+};
+
+Commission.prototype.CreateCommission = new Proxy(CreateCommission, {
+    apply: function (target, thisArg, argList) {
+        if (argList.length === 2) {
+            target.bind(thisArg)(...argList)
+        } else {
+            target.bind(thisArg)(undefined, ...argList);
+        }
+    }
+});
 
 
 module.exports = Commission;

@@ -262,6 +262,22 @@ var CreateEntity = function (tableName, references = [], primaryKey = 'id', data
         }
     };
 
+    Entity.getSumOfAmount = async function (column, key, value) {
+        let query = await Entity.database(Entity.table).sum(column);
+        if (key) {
+            query.where(key, value)
+        }
+        await query.sum(column)
+            .then(function (result) {
+                return (result[0].sum);
+                //callback(result[0].sum);
+            })
+            .catch(function (err) {
+                console.error(err);
+                return [];
+            });
+    };
+
     //Find on relative function will call the findAll function by default. Allowing overrides at a model layer.
     Entity.findOnRelative = function (key = true, value = true, callback) {
         Entity.findAll(key, value, function (result) {
@@ -375,6 +391,7 @@ var CreateEntity = function (tableName, references = [], primaryKey = 'id', data
         }
         query.sum(column)
             .then(function (result) {
+                //return result[0].sum;
                 callback(result[0].sum);
             })
             .catch(function (err) {

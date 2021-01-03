@@ -55,7 +55,7 @@ module.exports = function(router) {
         });
 
         let newCampaign = new Campaign(req.body);
-        newCampaign.set("publish", true);
+        newCampaign.set("published", true);
         newCampaign.createCampaign(function (err, result) {
             if (err) {
                 return res.status(403).json({error: err});
@@ -68,7 +68,7 @@ module.exports = function(router) {
         });
     });
 
-    router.delete("/campaign/:id", function (req, res, next) {
+    router.post("/campaign/:id/delete", function (req, res, next) {
         let id = req.params.id;
 
         Campaign.findById(id,  function (delCamp) {
@@ -82,6 +82,8 @@ module.exports = function(router) {
             })
         })
     })
+
+    router.delete('/campaign/:id', function(req, res){})
     require("./entity")(router, Campaign, "campaigns");
 
     return router;
