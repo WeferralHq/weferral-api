@@ -68,7 +68,7 @@ let CreateCommission = function(campaign, callback) {
             return new Promise(function (resolve, reject) {
                 let total = parseInt(totalAmount);
                 if (total >= campaign.data.minimum_cash_payout) {
-                    Reward.findOne('campaign_id', campaignId, async function (reward) {
+                    Reward.findOne('participant_id', self.data.participant_id, async function (reward) {
                         if (reward.data) {
                             //let newCredit = reward.data.assignedCredit + self.data.amount;
                             reward.data.assignedCredit = total;
