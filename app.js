@@ -87,9 +87,9 @@ module.exports = function (initConfig = null) {
             require('./api/clicks')(api);
             require('./api/conversions')(api);
             require('./api/notification-templates')(api);
+            require('./api/campaign-system-options')(api);
             //require('./api/invoices')(api);
             //require('./api/campaign-categories')(api);
-            //require('./api/system-options')(api);
             //require('./api/event-logs')(api);
             //require('./api/permissions')(api);
             //require('./api/roles')(api);

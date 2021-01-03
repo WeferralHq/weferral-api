@@ -5,47 +5,6 @@ let create_systemOptions = async function (campaign_id) {
     {
         options : [
             {
-                "option": "button_default_color",
-                "value": "#FFFFFF",
-                public: true,
-                "campaign_id": campaign_id,
-                "type": "theme",
-                "data_type": "color_picker"
-            },
-            {
-                "option": "button_default_hover_color",
-                "value": "#EEEEEE",
-                public: true,
-                "campaign_id": campaign_id,
-                "type": "theme",
-                "data_type": "color_picker"
-            },
-            {
-                "option": "button_default_text_color",
-                "value": "#000000",
-                public: true,
-                "campaign_id": campaign_id,
-                "type": "theme",
-                "data_type": "color_picker"
-            },
-            {"option": "button_info_color", "value": "#03A9F4", public: true,"campaign_id": campaign_id, "type": "theme", "data_type": "color_picker"},
-            {
-                "option": "button_info_hover_color",
-                "value": "#039BE5",
-                public: true,
-                "campaign_id": campaign_id,
-                "type": "theme",
-                "data_type": "color_picker"
-            },
-            {
-                "option": "button_info_text_color",
-                "value": "#ffffff",
-                public: true,
-                "campaign_id": campaign_id,
-                "type": "theme",
-                "data_type": "color_picker"
-            },
-            {
                 "option": "button_primary_color",
                 "value": "#2979FF",
                 public: true,
@@ -70,17 +29,21 @@ let create_systemOptions = async function (campaign_id) {
                 "data_type": "color_picker"
             },
             {"option": "background_color", "value": "#ffffff", public: true, "campaign_id": campaign_id, "type": "theme", "data_type": "color_picker"},
-            {"option": "page_link_color", "value": "#30468a", public: true, "campaign_id": campaign_id, "type": "theme", "data_type": "color_picker"},
             {"option": "header_text_color", "value": "#30468a", public: true, "campaign_id": campaign_id, "type": "theme", "data_type": "color_picker"},
             {"option": "text_size", "value": "12", public: true, "campaign_id": campaign_id, "type": "theme", "data_type": "number"},
             {"option": "allow_registration", "value": "true", public: true, "campaign_id": campaign_id, "type": "system", "data_type": "bool"},
             {"option": "allow_company_registration", "value": "true", public: true, "campaign_id": campaign_id, "type": "system", "data_type": "bool"},
             {"option": "allow_address_registration", "value": "true", public: true, "campaign_id": campaign_id, "type": "system", "data_type": "bool"},
-            {"option": "primary_theme_text_color", "value": "#FFFFFF", public: true, "campaign_id": campaign_id, "type": "theme", "data_type": "color_picker"},
-            {"option": "primary_theme_background_color", "value": "#000000", public: true, "campaign_id": campaign_id, "type": "theme", "data_type": "color_picker"},
-            {"option": "breadcrumb_color", "value": "#FFFFFF", public: true, "campaign_id": campaign_id, "type": "theme", "data_type": "color_picker"},
-            {"option": "featured_service_show_all_button_text", "value": "Show All", public: true, "campaign_id": campaign_id, "campaign_id": campaign_id, "type": "featured services", "data_type": "text"},
-            {"option": "featured_service_section_background_color", "value": "#FFFFFF", public: true, "campaign_id": campaign_id, "type": "featured services", "data_type": "color_picker"},
+            {
+                "option": "campaign_title_description", 
+                "value": "Sign up to become our affiliate and earn rewards. After sign up, you will get access to your custom referral link and your own dashboard", 
+                public: true,
+                "campaign_id": campaign_id,
+                "type": "featured campaign",
+                "data_type": "text"
+            },
+            {"option": "campaign_title_form", "value": "Welcome to our referral program", public: true, "campaign_id": campaign_id, "type": "featured campaign", "data_type": "text"},
+            {"option": "google_analytics", public: true, "campaign_id": campaign_id, "type": "system", "data_type": "text"},
     
         ]
     };
