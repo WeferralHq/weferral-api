@@ -5,6 +5,7 @@ let references = [
 let Campaign = require('./base/entity')("campaigns", references);
 let Url = require('./url');
 let default_notifications = require('../config/default-notifications');
+let create_systemOptions = require('../config/campaign-sys-options');
 let NotificationTemplate = require('./notification-template');
 //let async = require("async");
 
@@ -16,6 +17,7 @@ let createCampaign = function (options, callback) {
         console.log(`Create Campaign: ${created_campaign}`);
         let campN = created_campaign.data;
         await default_notifications(campN.id);
+        await create_systemOptions(campN.id);
         let newUrl = new Url({
             "original_url": self.data.original_url,
             "campaign_id": campN.id
