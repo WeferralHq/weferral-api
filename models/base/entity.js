@@ -491,70 +491,31 @@ var CreateEntity = function (tableName, references = [], primaryKey = 'id', data
                 })
         };
 
-    //TODO: figure out if updateReferences is even needed, if it is figure out how to remove it.
-    Entity.batchUpdate = async function (dataArray, updateReferences, isTransaction=false) {
-        let columns = await Entity.database(Entity.table).columnInfo()
-        let data = dataArray.map(function (entity) {
-            return _.pick(entity, _.keys(columns));
-        })
-        let transaction = Entity.database.transaction;
-        if(isTransaction){
-            transaction = async (callback) => {
-                return callback(Entity.database);
-            }
-        }
-        return await transaction(async function (trx) {
-            return Promise.map(data, async function (entityData, index) {
-                let record;
-                if (entityData[Entity.primaryKey]) {
-                    record = (await trx.from(Entity.table).where(Entity.primaryKey, entityData[Entity.primaryKey]).update(entityData).returning("*"))[0];
-                } else {
-                    record = (await trx.from(Entity.table).insert(entityData).returning("*"))[0];
-                }
+        Entity.batchUpdate = function (dataArray, callback) {
 
-                if(updateReferences && dataArray[index].references){
-                    record.references = dataArray[index].references;
-                    for(let [refName, refValues] of Object.entries(dataArray[index].references)){
-                        let reference = references.find(ref => ref.model.table === refName);
-                        if(reference && !reference.readOnly){
-                            let trxReference = CreateEntity(reference.model.table, reference.model.references, reference.model.primaryKey, trx);
-                            let ids = refValues.reduce((acc, refInstance) => acc.concat(refInstance.id || []), []);
-                            let removedReferences = await trxReference.batchDelete({
-                                not: {id: {"in": ids}},
-                                [reference.referenceField]: record[Entity.primaryKey]
-                            });
-                            let refsToUpdate = refValues.reduce((acc, val) => {
-                                if(val[reference.model.primaryKey]){
-
-                                     //make sure that the referenceField is pointing properly
-                                    if(reference.direction === "from" && val[reference.referenceField] === record[Entity.primaryKey]){
-                                        acc.push(val);
-
-                                    }else if(reference.direction === "to" && record[reference.referenceField] === val[reference.model.primaryKey]){
-                                        acc.push(val);
-                                    }
-                                }else{
-                                    if(reference.direction === "from"){
-                                        
-                                        val[reference.referenceField] = record[Entity.primaryKey];
-                                        acc.push(val);
-
-                                    }
-                                }
-                                return acc;
-                            }, []);
-                            record.references[reference.model.table] = (await trxReference.batchUpdate(refsToUpdate, true, true)) || [];
-                            
-
-                        }
-                    }
-                }
-                
-                return record;
-            });
-        });
-
-    };
+            knex(Entity.table).columnInfo()
+                .then(function (info) {
+                    return dataArray.map(function (entity) {
+                        return _.pick(entity, _.keys(info));
+                    })
+                })
+                .then(function (data) {
+                    knex.transaction(function(trx){
+                        return Promise.map(data, function(entityData){
+                            if(entityData[Entity.primaryKey]) {
+                                return trx.from(Entity.table).where(Entity.primaryKey, entityData[Entity.primaryKey]).update(entityData).returning("*");
+                            }else{
+                                return trx.from(Entity.table).insert(entityData).returning("*");
+                            }
+                        });
+    
+                    }).then(function(result){
+                        callback(result);
+                    }).catch(function(err){
+                        console.log(err);
+                    })
+                });
+        };
     Entity.prototype.update = promiseProxy(update, false);
     Entity.findOne = promiseProxy(findOne);
     Entity.prototype.attachReferences = promiseProxy(attachReferences);
