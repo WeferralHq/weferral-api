@@ -47,6 +47,7 @@ module.exports = function(router) {
 
     router.post("/campaign", function (req, res, next) {
         //req.body.user_id = req.user.get("id");
+        req.body.name = req.body.name.toLowerCase();
 
         Campaign.findAll("name", req.body.name, (campaigns) => {
             if (campaigns && campaigns.length > 0) {

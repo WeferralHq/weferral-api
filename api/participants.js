@@ -66,8 +66,8 @@ module.exports = function(router) {
         });
     });
 
-    router.post('/participant/:campName', function(req, res) {
-        let campName = req.params.campName;
+    router.post('/participant/:campaignName', function(req, res) {
+        let campName = req.params.campaignName;
         campName = campName.replace(/[^a-zA-Z ]/g, " ");
 
         Participant.findAll("email", req.body.email, (participant) => {

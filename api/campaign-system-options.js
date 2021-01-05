@@ -1,4 +1,5 @@
 let CampaignSystemOption = require('../models/campaign-sys-option');
+let Campaign = require("../models/campaign");
 
 module.exports = function(router) {
 
@@ -11,6 +12,25 @@ module.exports = function(router) {
             }, {}));
         });
     });
+
+    router.get('/system-setting/:campaignName', function (req, res, next) {
+        let campaignName = req.params.campaignName.replace(/-/g, ' ');
+        let campaignId = 0;
+        Campaign.findOne("name", campaignName, function (campaigns) {
+            if (campaigns.data) {
+                campaignId = campaigns.data.id;
+
+                CampaignSystemOption.findAll("campaign_id", campaignId, function (results) {
+                    res.json(results.reduce((acc, entity) => {
+                        acc[entity.data.option] = entity.data;
+                        return acc;
+                    }, {}));
+                });
+            }
+        });
+
+        
+    })
 
     router.put('/system-settings/:campaignId', function (req, res, next) {
         let campaignId = req.params.campaignId;
