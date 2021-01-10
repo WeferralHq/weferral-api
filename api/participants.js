@@ -25,6 +25,15 @@ module.exports = function(router) {
         });
     });
 
+    router.get('/participants', function(req,res){
+        Participant.findAll(true, true, (results) => {
+            if (results && results.length > 0) {
+                let participants = (results.map(entity => entity.data));
+                return res.status(200).json(participants);
+            }
+        });
+    });
+
     router.get('/api/v1/verifyhash/:thisId', function(req, res) {
         var url_Id = req.param('thisId');
         Participant.findAll('referral_code', url_Id, function(err, rows, fields){
