@@ -3,6 +3,38 @@ let Participant = require('../models/participant');
 
 module.exports = function(router) {
 
+    router.get('/customers', function(req,res){
+        new Promise((resolve, reject) => {
+            Customer.findAll(true, true, (results) => {
+                if (results && results.length > 0) {
+                    resolve(results);
+                } else{
+                    reject('No Customers found');
+                }
+            });
+        }).then(customers => {
+            //Attach references to customers
+            return Promise.all(customers.map(customer => {
+                return new Promise((resolve, reject) => {
+                    customer.attachReferences(updatedParent => {
+                        resolve(updatedParent);
+                    })
+                })
+            }))
+        }).then(customers => {
+            //send response
+            res.json(customers.map(function (entity) {
+                delete entity.data.overhead;
+                return entity.data
+            }))
+        }).catch(err => {
+            //send error response
+            console.error('Error with Get customers request: ', err);
+            res.status(400).json({error: err});
+        });
+        
+    });
+
     router.post('/customer/:referral_code/events', function(req, res){
         let referral_code = req.params.referral_code;
         let uniqueId = req.body.userId;
@@ -11,7 +43,7 @@ module.exports = function(router) {
         let metaObj = {};
         Participant.findOne('referral_code', referral_code, function (rows){
             if(rows.data){
-                Customer.findOne('unique_id', uniqueId, function(customer){
+                Customer.findOne('unique_id', uniqueId, async function(customer){
                     customer.set('name', custData.name);
                     customer.set('email', custData.email);
                     Object.keys(custData).forEach((key, index) => {

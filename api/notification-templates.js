@@ -13,16 +13,7 @@ module.exports = function(router) {
         });
     });
 
-    /*router.get('/notification-template/:id', function(req, res, next) {
-        let id = req.params.id;
-        NotificationTemplate.findById(id, function(template){
-            if (template.data) {
-                return res.status(200).json(template);
-            }
-        });
-    });*/
-
-    router.get("/notification-templates/:id(\\d+)", validate(NotificationTemplate), function(req, res, next){
+    router.get("/notification-template/:id(\\d+)", validate(NotificationTemplate), function(req, res, next){
         let modelName = res.locals.valid_object.get("model");
         let model =  require("../models/" + modelName);
         model.getSchema(true, false, function(result){
