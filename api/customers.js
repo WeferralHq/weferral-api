@@ -35,6 +35,10 @@ module.exports = function(router) {
         
     });
 
+    router.post('/import', function(req, res){
+        console.log(req.body);
+    })
+
     router.post('/customer/:referral_code/events', function(req, res){
         let referral_code = req.params.referral_code;
         let uniqueId = req.body.userId;

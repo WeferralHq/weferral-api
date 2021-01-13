@@ -34,6 +34,13 @@ module.exports = function(router) {
         });
     });
 
+    router.get('/participant/profile/:id', validate(Participant), async function(req,res){
+        let Obj = res.locals.valid_object;
+        let stats = await Obj.participantStats();
+        let newObj = Object.assign(Obj.data, stats);
+        res.json(newObj);
+    })
+
     router.get('/api/v1/verifyhash/:thisId', function(req, res) {
         var url_Id = req.param('thisId');
         Participant.findAll('referral_code', url_Id, function(err, rows, fields){
@@ -116,10 +123,11 @@ module.exports = function(router) {
                         newParticipant.set('status', 'active');
                     }
                     newParticipant.createParticipant(function (err, result) {
+                        
                         if (err) {
-                            return res.status(403).json({ error: err });
+                            res.status(403).json({ error: err });
                         } else {
-                            return res.status(200).json({ result });
+                            res.status(200).json( result );
                         }
                     });
                 })

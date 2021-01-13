@@ -62,7 +62,7 @@ User.prototype.deleteUser = function (callback) {
 };
 
 /**
- * This function will cancel all users services in Stripe and internal database. Then will mark the user as suspended.
+ * This function will cancel all users services in internal database. Then will mark the user as suspended.
  * @param callback - Final suspension result, or error.
  */
 //THERES NO CALLBACK
