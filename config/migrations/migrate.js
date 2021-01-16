@@ -29,6 +29,7 @@ async function migrate(){
         return new Promise(resolve => {
             console.log("migration complete - switching app version to latest");
             console.log(result);
+            pjson.version = order.pop();
             SystemOptions.findOne("option", "app_version", (version => {
                 version.set("value", order.pop());
                 version.update(result => {resolve(result)});

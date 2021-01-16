@@ -3,6 +3,8 @@ let Participant = require("../models/participant");
 //let store = require("../config/redux/store");
 let validate = require("./middlewares/validate");
 let Campaign = require('../models/campaign');
+let bcrypt = require("bcryptjs");
+//const { delete } = require("../config/db");
 
 module.exports = function(router) {
 
@@ -34,12 +36,34 @@ module.exports = function(router) {
         });
     });
 
+    router.get('/participant/:id(\\d+)', validate(Participant), function(req,res){
+        let participant = res.locals.valid_object;
+        res.json(participant);
+    });
+
     router.get('/participant/profile/:id', validate(Participant), async function(req,res){
         let Obj = res.locals.valid_object;
         let stats = await Obj.participantStats();
         let newObj = Object.assign(Obj.data, stats);
         res.json(newObj);
-    })
+    });
+
+    router.put("/participants/:id(\\d+)", validate(Participant), async function (req, res, next) {
+        let participant = res.locals.valid_object;
+        req.body.id = req.params.id;
+        if (req.body.password) {
+            req.body.password = bcrypt.hashSync(req.body.password, 10);
+        }
+        Object.assign(participant.data, req.body);
+        console.log("updating the participant");
+        let updateParticipant = await participant.update();
+        delete updateParticipant.password;
+        let out = {
+            message: 'User is successfully updated',
+            results: updateParticipant
+        }
+        res.json(out);
+    });
 
     router.get('/api/v1/verifyhash/:thisId', function(req, res) {
         var url_Id = req.param('thisId');
