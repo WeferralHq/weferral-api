@@ -262,6 +262,20 @@ var CreateEntity = function (tableName, references = [], primaryKey = 'id', data
         }
     };
 
+    Entity.findFilter = function (filter = {}, callback) {
+        Entity.database(Entity.table).where(whereFilter(filter))
+            .then(function (result) {
+                if (!result) {
+                    result = [];
+                }
+                let entities = result.map(e => new Entity(e));
+                callback(entities);
+            })
+            .catch(function (err) {
+                console.error(err);
+            });
+    };
+
     Entity.getSumOfAmount = async function (column, key, value) {
         let query = await Entity.database(Entity.table).sum(column);
         if (key) {

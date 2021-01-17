@@ -52,10 +52,10 @@ NotificationTemplate.prototype.build = function (map, callback) {
 
 };
 
-NotificationTemplate.prototype.createNotification =  function* (object) {
+NotificationTemplate.prototype.createNotification =  function* (object, userToNotify) {
     let self = this;
     let notificationContent = yield getNotificationContents(self, object);
-    let usersToNotify = yield getRoleUsers(self);
+    let usersToNotify = userToNotify;
 
     if(self.get('send_to_owner')) {
         let owner = yield new Promise((resolve, reject) => {
@@ -117,9 +117,9 @@ let getRoleUsers = function(template){
     });
 };
 
-let createNotifications = function(recipients, message, subject, notificationTemplate){
+let createNotifications = function(recipient, message, subject, notificationTemplate){
     if(notificationTemplate.get('create_notification')) {
-        return Promise.all(recipients.map(recipient => {
+        //return Promise.all(recipients.map(recipient => {
             return new Promise((resolve, reject) => {
                 let notificationAttributes = {
                     message: message,
@@ -139,7 +139,7 @@ let createNotifications = function(recipients, message, subject, notificationTem
             }).catch(e => {
                 console.log('error when creating notification: ', e)
             })
-        }))
+        //}))
     }
     else{
         console.log("no notifications to create")
@@ -147,10 +147,12 @@ let createNotifications = function(recipients, message, subject, notificationTem
     }
 };
 
-let createEmailNotifications = function(recipients, message, subject, notificationTemplate){
+let createEmailNotifications = function(recipient, message, subject, notificationTemplate){
     if(notificationTemplate.get('send_email')){
         let additionalRecipients = notificationTemplate.get('additional_recipients');
-        let emailArray = recipients.map(recipient => recipient.get('email'));
+        let emailArray = [];
+        let emailAddress = recipient.get('email');
+        emailArray.push(emailAddress);
         emailArray = _.union(emailArray, additionalRecipients);
         console.log("email array")
         console.log(emailArray)
