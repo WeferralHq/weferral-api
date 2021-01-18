@@ -52,13 +52,13 @@ NotificationTemplate.prototype.build = function (map, callback) {
 
 };
 
-NotificationTemplate.prototype.createNotification =  function* (object, userToNotify) {
+NotificationTemplate.prototype.createNotification = async function (object, userToNotify) {
     let self = this;
-    let notificationContent = yield getNotificationContents(self, object);
+    let notificationContent = await getNotificationContents(self, object);
     let usersToNotify = userToNotify;
 
     if(self.get('send_to_owner')) {
-        let owner = yield new Promise((resolve, reject) => {
+        let owner = new Promise((resolve, reject) => {
             let userId = self.get("model") === 'user' ? object.get('id') : object.get('user_id');
             User.findOne("id", userId, function (user) {
                 resolve(user);
@@ -78,9 +78,9 @@ let getNotificationContents = function(template, targetObject){
     return new Promise(function (resolve, reject) {
         //Attach references
         targetObject.attachReferences(updatedObject => {
-            let store = require('../config/redux/store');
-            let globalProps = store.getState().options;
-            Object.keys(globalProps).forEach(key => updatedObject.set("_" + key, globalProps[key]));
+            //let store = require('../config/redux/store');
+            //let globalProps = store.getState().options;
+            //Object.keys(globalProps).forEach(key => updatedObject.set("_" + key, globalProps[key]));
             return resolve(updatedObject)
         });
     }).then(updatedObject => {

@@ -1,5 +1,5 @@
-let Role = require("../models/role.js");
-let swaggerJSON = require("../api-docs/api-paths.json");
+let Role = require("../../models/role.js");
+let swaggerJSON = require("../../api-docs/api-paths.json");
 
 
 //todo:  allow for multiple permissions

@@ -20,7 +20,7 @@ let default_notifications = async function(campaign_id) {
     },
     {name:"participant_invitation",
         campaign_id: campaign_id,
-        event_name:"participant_invitation",
+        event_name:"participant_invitated",
         message:"Hello there, \r\nYou have been invited to use the [[_company_name]] Weferral System. From <a href='[[_hostname]]'>here</a> you can manage your campaigns, and see other campaign options. Please click the link to begin user <a href='[[url]]'>registration</a>.",
         subject:"Weferral Invitation!",
         model:"participant",

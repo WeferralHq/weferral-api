@@ -6,6 +6,7 @@ let Campaign = require('../models/campaign');
 let bcrypt = require("bcryptjs");
 let Invitation = require('../models/invitation');
 let EventLogs = require('../models/event-log');
+let notification = require('../lib/notification');
 //const { delete } = require("../config/db");
 
 module.exports = function(router) {
@@ -29,23 +30,25 @@ module.exports = function(router) {
         });
     });
 
-    router.post('/participant/invite/:campaign_id', function (req, res, next) {
+    router.post('/participant/invite/:campaign_id', async function (req, res, next) {
         let campaign_id = req.params.campaign_id;
         let campObj = (await Campaign.find({"id": campaign_id}))[0];
         function reinviteParticipant(participant){
-
-            let invite = new Invitation({"participant_id": participant.get('id')});
-            invite.create(function (err, result) {
+            let invite = new Invitation({
+                "participant_id": participant.get('id')
+            });
+            invite.create(async function (err, result) {
                 if (!err) {
                     let apiUrl = req.protocol + '://' + req.get('host') + "/api/v1/participant/" + campObj.data.name +"?token=" + result.get("token");
                     let frontEndUrl = req.protocol + '://' + req.get('host') + "/invitation/" + result.get("token");
-                    EventLogs.logEvent(req.user.get('id'), `participants ${req.body.email} was reinvited by user ${req.user.get('email')}`);
+                    //EventLogs.logEvent(req.user.get('id'), `participants ${req.body.email} was reinvited by user ${req.user.get('email')}`);
                     res.locals.json = {token: result.get("token"), url: frontEndUrl, api: apiUrl};
                     result.set('url', frontEndUrl);
                     result.set('api', apiUrl);
                     res.locals.valid_object = result;
                     next();
-                    dispatchEvent("user_invited", participant);
+                    await notification("participant_invited", campObj.data.id, participant, participant);
+                    //dispatchEvent("user_invited", participant);
                 } else {
                     res.status(403).json({error: err});
                 }
@@ -58,7 +61,11 @@ module.exports = function(router) {
                 res.status(400).json({error: 'Invalid email format'});
             }
             else {
-                let newParticipant = new Participant({"email": req.body.email, "status": "invited"});
+                let newParticipant = new Participant({
+                    "email": req.body.email, 
+                    "status": "invited",
+                    "campaign_id": campaign_id
+                });
                 Participant.findAll("email", req.body.email, function (foundParticipants) {
                     if (foundParticipants.length != 0) {
                         Invitation.findOne("participant_id", foundParticipants[0].get("id"), invite => {
@@ -76,17 +83,18 @@ module.exports = function(router) {
                         newParticipant.createParticipant(function (err, resultParticipant) {
                             if (!err) {
                                 let invite = new Invitation({"participant_id": resultParticipant.get("id")});
-                                invite.create(function (err, result) {
+                                invite.create(async function (err, result) {
                                     if (!err) {
                                         let apiUrl = req.protocol + '://' + req.get('host') + "/api/v1/participant/" + campObj.data.name +"?token=" + result.get("token");
                                         let frontEndUrl = req.protocol + '://' + req.get('host') + "/invitation/" + result.get("token");
-                                        EventLogs.logEvent(req.user.get('id'), `participants ${req.body.email} was invited by user ${req.user.get('email')}`);
+                                        //EventLogs.logEvent(req.user.get('id'), `participants ${req.body.email} was invited by user ${req.user.get('email')}`);
                                         res.locals.json = {token: result.get("token"), url: frontEndUrl, api: apiUrl};
                                         newParticipant.set('url', frontEndUrl);
                                         newParticipant.set('api', apiUrl);
                                         res.locals.valid_object = result;
                                         next();
-                                        dispatchEvent("participant_invited", newParticipant);
+                                        await notification("participant_invited", campObj.data.id, newParticipant, newParticipant);
+                                        //dispatchEvent("participant_invited", newParticipant);
                                     } else {
                                         res.status(403).json({error: err});
                                     }

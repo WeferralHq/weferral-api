@@ -1,0 +1,75 @@
+{
+    "Error":
+   { "type": "object",
+     "properties":
+      { "code": { "type": "integer", "format": "int32" },
+        "message": { "type": "string" },
+        "fields": { "type": "string" } } },
+        "users":{
+            "type":"object",
+            "properties":{
+              "id":{
+                "type":"integer",
+                "required":true,
+                "description":"FILL ME OUT!!!!"
+              },
+              "role_id":{
+                "type":"integer",
+                "required":false,
+                "description":"FILL ME OUT!!!!"
+              },
+              "name":{
+                "type":"string",
+                "maxLength":255,
+                "required":false,
+                "description":"FILL ME OUT!!!!"
+              },
+              "email":{
+                "type":"string",
+                "maxLength":255,
+                "required":true,
+                "description":"FILL ME OUT!!!!"
+              },
+              "password":{
+                "type":"string",
+                "maxLength":255,
+                "required":false,
+                "description":"FILL ME OUT!!!!"
+              },
+              "active":{
+                "type":"boolean",
+                "required":false,
+                "description":"FILL ME OUT!!!!"
+              },
+              "phone":{
+                "type":"string",
+                "maxLength":255,
+                "required":false,
+                "description":"FILL ME OUT!!!!"
+              },
+              "last_login":{
+                "type":"string",
+                "required":false,
+                "description":"FILL ME OUT!!!!"
+              },
+              "created":{
+                "type":"string",
+                "required":true,
+                "description":"FILL ME OUT!!!!"
+              },
+              "references":{
+                "type":"object",
+                "properties":{
+                  "user_roles":{
+                    "type":"array",
+                    "items":[
+                      {
+                        "$ref":"#/definitions/user_roles"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+}

@@ -1,9 +1,8 @@
-let User = require('./user');
+let Campaign = require('./campaign');
 let references = [
-    {"model": User, "referenceField": "role_id", "direction": "to", "readOnly": true}
+    {"model": Campaign, "referenceField": "campaign_id", "direction": "to", "readOnly": true}
 ];
 let Participant = require('./base/entity')("participants", references);
-let md5 = require('md5');
 let Conversion = require('./conversion');
 let Customers = require('./customer');
 let Clicks = require('./click');
