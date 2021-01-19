@@ -93,7 +93,7 @@ module.exports = function (initConfig = null) {
             //require('./api/event-logs')(api);
             //require('./api/permissions')(api);
             //require('./api/roles')(api);
-            //require('./api/analytics')(api);
+            require('./api/analytics')(api);
 
 
             api.use(function (req, res, next) {

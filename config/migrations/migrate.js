@@ -5,6 +5,7 @@ let glob = require("glob");
 let Promise = require("bluebird");
 let SystemOptions = require("../../models/system-options");
 let pjson = require('../../package.json');
+let fs = require('fs');
 
 
 
@@ -29,7 +30,8 @@ async function migrate(){
         return new Promise(resolve => {
             console.log("migration complete - switching app version to latest");
             console.log(result);
-            pjson.version = order.pop();
+            //pjson.version = order.pop();
+            let updatedVersion = updateVersion(order.pop());
             SystemOptions.findOne("option", "app_version", (version => {
                 version.set("value", order.pop());
                 version.update(result => {resolve(result)});
@@ -38,6 +40,24 @@ async function migrate(){
     }).catch(err => {
         console.error(err)
     })
+}
+function updateVersion(version){
+    return new Promise((resolve, reject) => {
+        fs.readFile('./package.json', (err, data) => {
+            if (err) throw err;
+        
+            var packageJsonObj = JSON.parse(data);
+            packageJsonObj.version = version;
+            packageJsonObj = JSON.stringify(packageJsonObj);
+        
+            fs.writeFile('./package.json', packageJsonObj, (err) => {
+                if (err) throw err;
+                console.log('The package version has been updated!');
+                resolve(packageJsonObj.version);
+            });
+        });
+    })
+    
 }
 function getMigrations(){
     return new Promise((resolve, reject) => {
