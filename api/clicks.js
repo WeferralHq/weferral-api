@@ -2,6 +2,7 @@ let Click = require('../models/click');
 let Customer = require('../models/customer');
 let Campaign = require('../models/campaign');
 let Participant = require('../models/participant');
+let validate = require('./middlewares/validate');
 
 let getUniqueCustId = function(){
     let random_code = Math.random().toString(36).substring(10, 12) + Math.random().toString(36).substring(10, 12);
@@ -16,6 +17,15 @@ let getUniqueCustId = function(){
 }
 
 module.exports = function(router) {
+
+    router.get('/clicks/:campaign_id', function(req, res) {
+        let campaign_id = req.params.campaign_id;
+        Click.findAll('campaign_id', campaign_id, function(clicks){
+            if(clicks && clicks.length > 0){
+                res.json(clicks);
+            }
+        })
+    });
 
     router.get('/click/:referral_code', function(req, res) {
         let url_Id = req.params.referral_code;

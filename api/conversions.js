@@ -11,6 +11,15 @@ module.exports = function(router) {
         return result.data.id;
     });*/
 
+    router.get('/conversions/:campaign_id', function(req, res) {
+        let campaign_id = req.params.campaign_id;
+        Conversion.findAll('campaign_id', campaign_id, function(conversions){
+            if(conversions && conversions.length > 0){
+                res.json(conversions);
+            }
+        })
+    });
+
     router.post('/conversion/:referral_code/events', async function(req, res){
         let referral_code = req.params.referral_code;
         let uniqueId = req.body.userId;

@@ -1420,5 +1420,229 @@
             }
           }
         }
+      },
+      "/customers": {
+        "get": {
+          "summary": "Gets all customers",
+          "tags": [
+            "customers"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin",
+            "staff",
+            "developer"
+          ],
+          "operationId": "get_customers",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "An array of customers",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/customers"
+                }
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "/customers/{:participant_id}": {
+        "get": {
+          "summary": "Gets all customers referred by a participant",
+          "tags": [
+            "customers"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin",
+            "staff",
+            "developer"
+          ],
+          "operationId": "get_customers_participant_id",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "An array of customers",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/customers"
+                }
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      
+      "/customer/{id}": {
+        "get": {
+          "summary": "Get a customer by id",
+          "tags": [
+            "customers"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin",
+            "staff",
+            "developer"
+          ],
+          "operationId": "get_customers_id",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "customer id",
+              "required": true,
+              "type": "number",
+              "format": "double"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "A customer",
+              "schema": {
+                "$ref": "#/definitions/customers"
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        },
+        "put": {
+          "summary": "Updates a customer",
+          "tags": [
+            "customers"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin",
+            "staff",
+            "developer"
+          ],
+          "operationId": "put_customers_id",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "customers id",
+              "required": true,
+              "type": "number",
+              "format": "double"
+            },
+            {
+              "name": "customers",
+              "in": "body",
+              "description": "customer to update",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/customers"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Updated customer",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/customers"
+                }
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        },
+        "delete": {
+          "summary": "Deletes a customer",
+          "tags": [
+            "customers"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "x-roles": [
+            "admin",
+            "staff"
+          ],
+          "operationId": "delete_customers_id",
+          "security": [
+            {
+              "internalApiKey": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "customer id",
+              "required": true,
+              "type": "number",
+              "format": "double"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "A customer",
+              "schema": {
+                "$ref": "#/definitions/customers"
+              }
+            },
+            "default": {
+              "description": "Unexpected error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
       }
 }

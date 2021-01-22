@@ -8,13 +8,7 @@ let references = [
 ];
 let Reward = require('./reward');
 let Commission = require("./base/entity")("commissions", references);
-
-let totalRewardAmount = function(id) {
-    Commission.getSumOfColumnFiltered('amount', 'campaign_id', id, function(totalRewardAmount) {
-        let total = (totalRewardAmount == null ? 0 : totalRewardAmount);
-        return total;
-    });
-}
+let moment = require('moment');
 
 let lastDay = function(){
     let tday = new Date()
@@ -30,21 +24,21 @@ let dateScheduledFor = function(payout_term){
     if(payout_term === 'NET15'){
         date.setDate(15);
         if(dt >= 15) {
-            date.setMonth(date.getMonth() + 1);
+            date.setMonth(date.getMonth() + 2);
         }
 
         return date;
     } else if(payout_term === 'NET20'){
         date.setDate(20);
         if(dt >= 20) {
-            date.setMonth(date.getMonth() + 1);
+            date.setMonth(date.getMonth() + 2);
         }
 
         return date;
     } else {
         date.setDate(lastDay());
         if(dt >= lastDay()) {
-            date.setMonth(date.getMonth() + 1);
+            date.setMonth(date.getMonth() + 2);
         }
 
         return date;
