@@ -1,6 +1,6 @@
 let _ = require("lodash")
 let NotificationTemplate = require("./base/entity")("notification_templates");
-let Notification = require("./notifications");
+let Notification = require("./notification");
 let User = require("./user");
 let Role = require("./role");
 let knex = require('../config/db');

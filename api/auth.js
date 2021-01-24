@@ -10,7 +10,15 @@ module.exports = function(app, passport) {
 
     //TODO: buff up security so each user has their own secret key
     //TODO: security key..... no hardcoded strings plzzzz (along with the comment above)
-    app.post('/api/v1/auth/token', passport.authenticate('local-login', {session:false}), function(req, res) {
+    app.post('/api/v1/auths/token', passport.authenticate('local-login', {session:false}), function(req, res) {
+        console.log(req.user);
+        let token = jwt.sign({  uid: req.user.data.id }, process.env.SECRET_KEY, { expiresIn: '3h' });
+        console.log(token);
+        console.log(jwt.verify(token, process.env.SECRET_KEY));
+        res.json({token:token});
+    });
+
+    app.get('/api/v1/auth/token', function(req, res) {
         console.log(req.user);
         let token = jwt.sign({  uid: req.user.data.id }, process.env.SECRET_KEY, { expiresIn: '3h' });
         console.log(token);
@@ -106,11 +114,14 @@ module.exports = function(app, passport) {
         })(req, res, next);
     },require("./middlewares/role-session")(), function(req, res, next){
         let user_role = new Role({"id" : req.user.data.role_id});
-        user_role.getPermissions(function(perms){
+        if(user_role){
+            res.json({"message" : "successful login"});
+        }
+        /*user_role.getPermissions(function(perms){
             let permission_names = perms.map(perm => perm.data.permission_name);
             res.json({"message" : "successful login", "permissions" : permission_names })
-        });
+        });*/
     });
 
 
-    };
+};

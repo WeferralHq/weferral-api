@@ -25,9 +25,13 @@ module.exports = function (initConfig = null) {
             //var subpath = express();
 
             app.use(function(req, res, next) {
-                res.header("Access-Control-Allow-Origin", "*");
-                res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+                res.header("Access-Control-Allow-Origin", "http://localhost:4100");
+                res.header("Access-Control-Allow-Credentials", true);
+                res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Authorization, Accept, X-Custom-Header");
                 res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS');
+                if (req.method === "OPTIONS") {
+                    return res.status(200).end();
+                }
                 next();
             });
 
@@ -61,7 +65,7 @@ module.exports = function (initConfig = null) {
             var api = express.Router();
             app.use("/api/v1", api);
 
-            //force all requests to api route to look for token, if token is present in header the user will be logged in with taht token
+            //force all requests to api route to look for token, if token is present in header the user will be logged in with that token
             api.use(function (req, res, next) {
                 passport.authenticate('jwt', function (err, user, info) {
                     if (err) {
@@ -90,6 +94,7 @@ module.exports = function (initConfig = null) {
             require('./api/customers')(api);
             require('./api/notification-templates')(api);
             require('./api/campaign-system-options')(api);
+            require('./api/notifications')(api);
             //require('./api/event-logs')(api);
             //require('./api/permissions')(api);
             //require('./api/roles')(api);
