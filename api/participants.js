@@ -127,6 +127,20 @@ module.exports = function(router) {
         res.json(participant);
     });
 
+    router.delete('/participant/:id(\\d+)', validate(Participant), function(req,res){
+        let participant = res.locals.valid_object;
+        participant.deleteParticipant(function(result){
+            res.json(result);
+        });
+    });
+
+    router.get('/participant/suspend/:id', validate(Participant), function(req,res){
+        let participant = res.locals.valid_object;
+        participant.suspend(function(result){
+            res.json(result);
+        });
+    });
+
     router.get('/participant/profile/:id', validate(Participant), async function(req,res){
         let Obj = res.locals.valid_object;
         let stats = await Obj.participantStats();

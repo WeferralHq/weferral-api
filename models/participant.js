@@ -50,4 +50,33 @@ Participant.prototype.participantStats = async function (){
     return stats;
 }
 
+Participant.prototype.deleteParticipant = function (callback) {
+    let self = this;
+    new Promise(function (resolve, reject) {
+        self.delete(function (err, deleted_user) {
+            if (err) {
+                return reject({'message':'Participant cannot be deleted, must be suspended. Participant has connected records!'});
+            }
+            return resolve({'message':`Participant ${self.data.id} has been deleted from database!`, deleted_user});
+        });
+    }).then(function (result) {
+        callback(null, result);
+    }).catch(function (err) {
+        callback(err, null);
+    });
+};
+
+Participant.prototype.suspend = async function (callback) {
+    let self = this;
+    console.log('Participant status: ', self.data.status);
+    if (self.data.status !== 'invited' && self.data.status !== 'suspended') {
+        self.data.status = "suspended";
+        let updatedParticipant = await self.update();
+        callback(updatedParticipant);
+    }
+    else {
+        throw 'Participant can not be invited or already suspended'
+    }
+};
+
 module.exports = Participant;

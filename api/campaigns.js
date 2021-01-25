@@ -23,7 +23,9 @@ module.exports = function(router) {
         let id = req.params.id;
 
         Campaign.findById(id,  function (result) {
-            return res.status(200).json(result);
+            result.attachReferences(updatedParent => {
+                res.status(200).json(updatedParent);
+            })
         })
     });
 

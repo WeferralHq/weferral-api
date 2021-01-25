@@ -1,9 +1,9 @@
 let User = require('./user');
+let Url = require('./url');
 let references = [
-    {"model": User, "referenceField": "role_id", "direction": "to", "readOnly": true}
+    {"model": Url, "referenceField": "campaign_id", "direction": "from", "readOnly": true}
 ];
 let Campaign = require('./base/entity')("campaigns", references);
-let Url = require('./url');
 let default_notifications = require('../config/default-notifications');
 let create_systemOptions = require('../config/campaign-sys-options');
 let NotificationTemplate = require('./notification-template');
