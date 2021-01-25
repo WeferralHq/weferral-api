@@ -99,6 +99,7 @@ module.exports = function (initConfig = null) {
             //require('./api/permissions')(api);
             //require('./api/roles')(api);
             require('./api/analytics')(api);
+            require('./api/webhooks')(api);
 
 
             api.use(function (req, res, next) {
