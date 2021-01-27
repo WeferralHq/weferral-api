@@ -19,14 +19,11 @@ module.exports = function(router) {
         });
     });
 
-    router.get("/campaign/:id", function (req, res, next) {
-        let id = req.params.id;
-
-        Campaign.findById(id,  function (result) {
-            result.attachReferences(updatedParent => {
-                res.status(200).json(updatedParent);
-            })
-        })
+    router.get("/campaign/:id(\\d+)", validate(Campaign), function (req, res, next) {
+        let campaign = res.locals.valid_object;
+        campaign.attachReferences(updatedParent => {
+            res.status(200).json(updatedParent);
+        });
     });
 
     router.post('/campaign-page/:id', function(req, res, next){
