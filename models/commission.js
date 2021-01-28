@@ -1,10 +1,12 @@
 let Campaign = require('./campaign');
-let Participant = require('./participant');
+let Referral = require('./referral');
 let Conversion = require('./conversion');
+//let Customer = require('./customer');
 let references = [
     {"model": Campaign, "referenceField": "campaign_id", "direction": "to", "readOnly": true},
-    {"model": Participant, "referenceField": "participant_id", "direction": "to", "readOnly": true},
+    {"model": Referral, "referenceField": "participant_id", "direction": "to", "readOnly": true},
     {"model": Conversion, "referenceField": "conversion_id", "direction": "to", "readOnly": true}
+    //{"model": Customer, "referenceField": "customer_id", "direction": "to", "readOnly": true}
 ];
 let Reward = require('./reward');
 let Commission = require("./base/entity")("commissions", references);

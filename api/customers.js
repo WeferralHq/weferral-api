@@ -3,7 +3,7 @@ let Participant = require('../models/participant');
 
 module.exports = function(router) {
 
-    router.get('/customers', function(req,res){
+    /*router.get('/customers', function(req,res){
         new Promise((resolve, reject) => {
             Customer.findAll(true, true, (results) => {
                 if (results && results.length > 0) {
@@ -33,7 +33,7 @@ module.exports = function(router) {
             res.status(400).json({error: err});
         });
         
-    });
+    });*/
 
     router.post('/import', function(req, res){
         console.log(req.body);

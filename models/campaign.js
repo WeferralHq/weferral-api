@@ -1,6 +1,7 @@
-let User = require('./user');
 let Url = require('./url');
+let CampaignProperty = require('./campaign-property');
 let references = [
+    {"model":CampaignProperty, "referenceField": "parent_id", "direction":"from", "readOnly":false},
     {"model": Url, "referenceField": "campaign_id", "direction": "from", "readOnly": true}
 ];
 let Campaign = require('./base/entity')("campaigns", references);

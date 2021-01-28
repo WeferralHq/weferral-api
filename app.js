@@ -95,6 +95,8 @@ module.exports = function (initConfig = null) {
             require('./api/notification-templates')(api);
             require('./api/campaign-system-options')(api);
             require('./api/notifications')(api);
+            require('./api/rewards')(api);
+            require('./api/commissions')(api);
             //require('./api/event-logs')(api);
             //require('./api/permissions')(api);
             //require('./api/roles')(api);

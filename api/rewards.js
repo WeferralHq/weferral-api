@@ -1,20 +1,12 @@
 
 let Reward = require('../models/reward');
-let validate = require('../middleware/validate');
+let validate = require('./middlewares/validate');
 let _ = require('lodash');
 let Redemption = require('../models/redemption');
 //let auth = require('../middleware/auth');
+let async = require("async");
 
 module.exports = function(router) {
-    router.get(`/rewards`, function(req, res, next){
-        Reward.findAll(true, true,  function (result) {
-            if(result && result.length > 0){
-                result.attachReferences(updatedParent => {
-                    res.status(200).json(updatedParent);
-                });
-            }
-        });
-    });
     router.get('/reward/awaitingpayouts', function(req, res, next){
         let today = new Date().toISOString().slice(0,10);
         Reward.findAll(true, true,  function (result) {
@@ -41,12 +33,12 @@ module.exports = function(router) {
             if(!err){
                 reward.data.redeemedCredit = reward.data.redeemedCredit + reward.data.assignedCredit;
                 reward.data.assignedCredit = 0;
-                await reward.update();
-                res.json({'message': 'Payout was successful'});
+                let updateReward = await reward.update();
+                res.json(updateReward);
             }
         })
     });
-    
+
     router.get('/reward/:id(\\d+)', validate(Reward), function(req, res, next){
         let reward = res.locals.valid_object;
         reward.attachReferences(updatedParent => {
