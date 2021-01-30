@@ -46,6 +46,7 @@
     "morgan": "^1.10.0",
     "mysql2": "^1.6.5",
     "nanoid": "^2.1.11",
+    "node-cron": "^2.0.3",
     "nodemailer": "^6.4.17",
     "palin": "^2.3.0",
     "passport": "^0.4.1",

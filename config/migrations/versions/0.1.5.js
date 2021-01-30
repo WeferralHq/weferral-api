@@ -6,6 +6,8 @@ module.exports = {
         });
         await knex.schema.alterTable("campaigns", table => {
             table.integer('trial_period_days');
+            table.boolean('enable_recurring').defaultTo(false);
+            table.integer('recurring_limit');
             console.log("Updated 'campaigns' table.");
         });
         await knex.schema.createTable("files", table => {

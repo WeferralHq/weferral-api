@@ -4,6 +4,7 @@ let Campaign = require('../models/campaign');
 //let Reward = require('../models/reward');
 let Commission = require('../models/commission');
 let Customer = require('../models/customer');
+let campaignCron = require('../config/campaign-cron');
 
 module.exports = function(router) {
 
@@ -37,22 +38,27 @@ module.exports = function(router) {
                     'conversion_amount': req.body.amount
                 });
                 let rewardPrice = campaign.data.reward_price;
-                if(rewardType === 'cash_reward' && commissionType === 'fixed'){
-                    newCommission.set('amount', rewardPrice);
-                    newCommission.CreateCommission(campaign, function(created_comm){
-                        return res.status(200).json({'message': 'Successful'});
-                    })
-                }else if(rewardType === 'cash_reward' && commissionType === 'percentage_sale'){
-                    let perc = ((rewardPrice / 100) * req.body.amount).toFixed(3);
-                    newCommission.set('amount', perc);
-                    newCommission.CreateCommission(campaign, function(created_comm){
-                        return res.status(200).json({'message': 'Successful'});
-                    })
-                } else {
-                    newCommission.create(function(created_comm){
-                        return res.status(200).json(created_comm);
-                    })
+                if(campaign.data.enable_recurring){
+                    campaignCron(campaign, req.body.amount, newCommission);
+                }else {
+                    if(rewardType === 'cash_reward' && commissionType === 'fixed'){
+                        newCommission.set('amount', rewardPrice);
+                        newCommission.CreateCommission(campaign, function(created_comm){
+                            return res.status(200).json({'message': 'Successful'});
+                        })
+                    }else if(rewardType === 'cash_reward' && commissionType === 'percentage_sale'){
+                        let perc = ((rewardPrice / 100) * req.body.amount).toFixed(3);
+                        newCommission.set('amount', perc);
+                        newCommission.CreateCommission(campaign, function(created_comm){
+                            return res.status(200).json({'message': 'Successful'});
+                        })
+                    } else {
+                        newCommission.create(function(created_comm){
+                            return res.status(200).json(created_comm);
+                        })
+                    }
                 }
+                
             })
         })
     });
