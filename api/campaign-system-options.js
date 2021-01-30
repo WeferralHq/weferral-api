@@ -1,7 +1,37 @@
 let CampaignSystemOption = require('../models/campaign-sys-option');
 let Campaign = require("../models/campaign");
-
+let cloudinary = require('../config/cloudinary');
+let File = require('../models/file');
 module.exports = function(router) {
+
+    router.post('/system-options/file/:id', function (req, res, next){
+        let campaign_id = req.params.id;
+        cloudinary.uploader.upload(req.body.image).then((result)=>{
+            let newFile = new File({
+                'campaign_id': campaign_id,
+                'name': req.body.name,
+                'url': result.secure_url,
+                'public_id': result.public_id
+            })
+
+            newFile.create(function (created_file){
+                if(created_file.data){
+                    res.json(created_file.map(entity => entity.data));
+                }
+            })
+        })
+    });
+
+    router.get('/system-options/file/:id/:filename', function (req, res, next){
+        let campaign_id = req.params.id;
+        let filename = req.params.filename;
+        File.findAll("campaign_id", campaign_id, function (results) {
+            let data = results.filter((file) => {
+                return file.get('name') == filename;
+            })
+            res.json(data.map(entity => entity.data));
+        })
+    })
 
     router.get(`/campaign-system-options/:campaignId`, function (req, res, next) {
         let campaignId = req.params.campaignId;

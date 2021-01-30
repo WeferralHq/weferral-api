@@ -20,6 +20,7 @@
     "bcryptjs": "^2.4.3",
     "bluebird": "^3.7.2",
     "bristol": "^0.4.0",
+    "cloudinary": "^1.23.0",
     "connect-flash": "^0.1.1",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
