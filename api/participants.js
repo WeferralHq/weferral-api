@@ -63,6 +63,8 @@ module.exports = function(router) {
             else {
                 let newParticipant = new Participant({
                     "email": req.body.email, 
+                    "fname": req.body.fname || '',
+                    "lname": req.body.lname || '',
                     "status": "invited",
                     "campaign_id": campaign_id
                 });
@@ -116,8 +118,8 @@ module.exports = function(router) {
     router.get('/participants', function(req,res){
         Participant.findAll(true, true, (results) => {
             if (results && results.length > 0) {
-                //let participants = (results.map(entity => entity.data));
-                res.status(200).json(results);
+                let participants = (results.map(entity => entity.data));
+                res.status(200).json(participants);
             }
         });
     });

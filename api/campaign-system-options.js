@@ -22,14 +22,15 @@ module.exports = function(router) {
         })
     });
 
-    router.get('/system-options/file/:id/:filename', function (req, res, next){
+    router.get('/secret-key', function(req, res, next){
+        let secretKey = process.env.SECRET_KEY;
+        res.json(secretKey);
+    });
+
+    router.get('/system-options/file/:id', function (req, res, next){
         let campaign_id = req.params.id;
-        let filename = req.params.filename;
         File.findAll("campaign_id", campaign_id, function (results) {
-            let data = results.filter((file) => {
-                return file.get('name') == filename;
-            })
-            res.json(data.map(entity => entity.data));
+            res.json(results.map(entity => entity.data));
         })
     })
 

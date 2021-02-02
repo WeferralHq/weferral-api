@@ -123,7 +123,7 @@ let createNotifications = function(recipient, message, subject, notificationTemp
             return new Promise((resolve, reject) => {
                 let notificationAttributes = {
                     message: message,
-                    user_id: recipient.get('id'),
+                    participant_id: recipient.get('id'),
                     subject: subject
                 };
                 //Create Notification
