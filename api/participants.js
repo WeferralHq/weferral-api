@@ -116,12 +116,14 @@ module.exports = function(router) {
 
 
     router.get('/participants', function(req,res){
-        Participant.findAll(true, true, (results) => {
-            if (results && results.length > 0) {
-                let participants = (results.map(entity => entity.data));
-                res.status(200).json(participants);
-            }
-        });
+        if (req.isAuthenticated()) {
+            Participant.findAll(true, true, (results) => {
+                if (results && results.length > 0) {
+                    let participants = (results.map(entity => entity.data));
+                    res.status(200).json(participants);
+                }
+            });
+        }
     });
 
     router.get('/participant/:id(\\d+)', validate(Participant), function(req,res){

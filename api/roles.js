@@ -6,7 +6,7 @@ module.exports = function(router) {
         let user_id = req.params.uid;
         if (req.isAuthenticated()) {
             Roles.findOne("id", req.user.data.role_id, function(result){
-                if(result.data.name === 'admin'){
+                if(result.data.role_name === 'admin'){
                     res.json({"admin":true});
                 }
             })

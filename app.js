@@ -99,7 +99,7 @@ module.exports = function (initConfig = null) {
             require('./api/commissions')(api);
             //require('./api/event-logs')(api);
             //require('./api/permissions')(api);
-            //require('./api/roles')(api);
+            require('./api/roles')(api);
             require('./api/analytics')(api);
             require('./api/webhooks')(api);
 
