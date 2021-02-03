@@ -7,6 +7,8 @@ let bcrypt = require("bcryptjs");
 let Invitation = require('../models/invitation');
 let EventLogs = require('../models/event-log');
 let notification = require('../lib/notification');
+let jwt = require("jsonwebtoken");
+let verifyAuth = require("./middlewares/verifyAuth");
 //const { delete } = require("../config/db");
 
 module.exports = function(router) {
@@ -126,6 +128,30 @@ module.exports = function(router) {
         }
     });
 
+    router.post('/participants/login/:campaignName', async function(req, res){
+        let campaignName = req.params.campaignName;
+        campaignName = campaignName.replace(/[^a-zA-Z ]/g, " ");
+        let campObj = (await Campaign.find({"name": campaignName}))[0];
+        if (campObj.data) {
+            let results = (await Participant.find({'email': req.body.email, 'campaign_id': campObj.data.id}))[0];
+            //await Participant.find({'email': req.body.email, 'campaign_id': campObj.data.id}, function(results) {
+                // Check if participant exists
+                if (!results.data) {
+                    res.status(401).json({ error: "Email not found" });
+                }
+                bcrypt.compare(req.body.password, results.data.password).then(isMatch => {
+                    if(isMatch){
+                        res.cookie("pid", results.data.id);
+                        let token = jwt.sign({  pid: results.data.id }, process.env.SECRET_KEY, { expiresIn: '3h' });
+                        res.status(200).json({token:token});
+                    }else{
+                        res.status(401).json({ error: "Password incorrect" });
+                    }
+                })
+            //});
+        }
+    });
+
     router.get('/participant/:id(\\d+)', validate(Participant), function(req,res){
         let participant = res.locals.valid_object;
         res.json(participant);
@@ -145,7 +171,7 @@ module.exports = function(router) {
         });
     });
 
-    router.get('/participant/profile/:id', validate(Participant), async function(req,res){
+    router.get('/participant/profile/:id', validate(Participant), verifyAuth(), async function(req,res){
         let Obj = res.locals.valid_object;
         let stats = await Obj.participantStats();
         let newObj = Object.assign(Obj.data, stats);

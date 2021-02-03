@@ -30,6 +30,7 @@ module.exports = function(app, passport) {
         res.clearCookie("permissions", {path: "/"});
         res.clearCookie("username", {path: "/"});
         res.clearCookie("uid", {path: "/"});
+        res.clearCookie("pid", {path: "/"});
         req.logout();
         res.json({"message" : "successful logout"});
     });
