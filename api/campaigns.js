@@ -1,5 +1,6 @@
 let Campaign = require("../models/campaign");
 let validate = require("./middlewares/validate");
+let Url = require("../models/url");
 
 module.exports = function(router) {
     router.post('/campaigns/:id/republish', validate(Campaign), function(req, res, next) {
@@ -25,6 +26,17 @@ module.exports = function(router) {
             res.status(200).json(updatedParent);
         });
     });
+
+    router.put("/campaign/url/:id/:Smedia", function(req, res, next){
+        let campaign_id = req.params.id;
+        let social_share = req.params.Smedia;
+        Url.findOne('campaign_id', campaign_id, async function(result){
+            let count = result.data[social_share] + 1;
+            result.set(social_share, count);
+            let newCount = await result.update();
+            res.json(newCount);
+        })
+    })
 
     router.post('/campaign-page/:id', function(req, res, next){
         let id = req.params.id;

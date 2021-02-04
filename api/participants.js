@@ -9,6 +9,7 @@ let EventLogs = require('../models/event-log');
 let notification = require('../lib/notification');
 let jwt = require("jsonwebtoken");
 let verifyAuth = require("./middlewares/verifyAuth");
+let Url = require("../models/url");
 //const { delete } = require("../config/db");
 
 module.exports = function(router) {
@@ -173,7 +174,9 @@ module.exports = function(router) {
 
     router.get('/participant/profile/:id', validate(Participant), verifyAuth(), async function(req,res){
         let Obj = res.locals.valid_object;
+        let url = (await Url.find({'campaign_id': Obj.data.campaign_id}))[0];
         let stats = await Obj.participantStats();
+        Obj.data.url = url.data.original_url;
         let newObj = Object.assign(Obj.data, stats);
         res.json(newObj);
     });
