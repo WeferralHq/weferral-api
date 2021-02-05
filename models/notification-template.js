@@ -57,7 +57,7 @@ NotificationTemplate.prototype.createNotification = async function (object, user
     let notificationContent = await getNotificationContents(self, object);
     let usersToNotify = userToNotify;
 
-    if(self.get('send_to_owner')) {
+    /*if(self.get('send_to_owner')) {
         let owner = new Promise((resolve, reject) => {
             let userId = self.get("model") === 'user' ? object.get('id') : object.get('user_id');
             User.findOne("id", userId, function (user) {
@@ -65,7 +65,7 @@ NotificationTemplate.prototype.createNotification = async function (object, user
             })
         });
         usersToNotify.push(owner);
-    }
+    }*/
     console.log(`trying to send message: ${notificationContent.message} to ---------->`);
     console.log(usersToNotify)
 

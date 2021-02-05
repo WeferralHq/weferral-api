@@ -11,6 +11,7 @@ let jwt = require("jsonwebtoken");
 let verifyAuth = require("./middlewares/verifyAuth");
 let Url = require("../models/url");
 let ResetRequest = require("../models/password-reset-request");
+let async = require("async");
 //const { delete } = require("../config/db");
 
 module.exports = function(router) {
@@ -215,6 +216,38 @@ module.exports = function(router) {
                 res.json({"message" : "Reset link sent"});
             }
         });
+    });
+
+    router.get("/participant/reset-password/:pid/:token",  function(req, res, next){
+        console.log(bcrypt.hashSync(req.params.token, 10));
+        ResetRequest.findOne("participant_id", req.params.pid, function(result){
+            if(result.data && bcrypt.compareSync(req.params.token, result.get("hash"))){
+                res.status(200).json({isValid: true});
+            }else{
+                res.status(400).json({isValid: false, error: "Invalid Reset Link"})
+            }
+        });
+    });
+
+    //todo -- token expiration
+    router.post("/participant/reset-password/:pid/:token", function(req, res, next){
+        ResetRequest.findOne("participant_id", req.params.pid , function(result){
+            if(result.data && bcrypt.compareSync(req.params.token, result.get("hash"))){
+                Participant.findOne("id", result.get("participant_id"), function(participant){
+                    let password = bcrypt.hashSync(req.body.password, 10);
+                    participant.set("password", password);
+                    participant.update(function(err, updated){
+                        res.json({"message" : "Password successfully reset"});
+                        result.delete(function(r){
+                           console.log("reset request deleted");
+                        });
+                    })
+                })
+            }else{
+                res.status(400).json({error: "Invalid Reset Link"})
+            }
+        })
+
     });
 
     router.put("/participants/:id(\\d+)", validate(Participant), async function (req, res, next) {
