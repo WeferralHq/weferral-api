@@ -10,6 +10,7 @@ let notification = require('../lib/notification');
 let jwt = require("jsonwebtoken");
 let verifyAuth = require("./middlewares/verifyAuth");
 let Url = require("../models/url");
+let ResetRequest = require("../models/password-reset-request");
 //const { delete } = require("../config/db");
 
 module.exports = function(router) {
@@ -153,7 +154,7 @@ module.exports = function(router) {
         }
     });
 
-    router.get('/participant/:id(\\d+)', validate(Participant), function(req,res){
+    router.get('/participant/:id(\\d+)', validate(Participant), verifyAuth(), function(req,res){
         let participant = res.locals.valid_object;
         res.json(participant);
     });
@@ -179,6 +180,41 @@ module.exports = function(router) {
         Obj.data.url = url.data.original_url;
         let newObj = Object.assign(Obj.data, stats);
         res.json(newObj);
+    });
+
+    router.post("/participant/:campaignName/reset-password", async function(req, res, next){
+        let campaignName = req.params.campaignName;
+        campaignName = campaignName.replace(/[^a-zA-Z ]/g, " ");
+        let campObj = (await Campaign.find({"name": campaignName}))[0];
+        Participant.findOne("email", req.body.email, function(participant){
+            if(participant.data){
+                ResetRequest.findAll("participant_id", participant.get("id"), function(requests){
+                    async.each(requests, function(request, callback){
+                        request.delete(function(result){
+                            callback();
+                        })
+                    }, function(err){
+                        require('crypto').randomBytes(20, function(err, buffer) {
+                            let token = buffer.toString("hex");
+                            let reset = new ResetRequest({
+                                participant_id: participant.get("id"),
+                                hash: bcrypt.hashSync(token, 10)
+                            });
+                            reset.create(async function(err, newReset){
+                                let frontEndUrl = `${req.protocol}://${req.get('host')}/reset-password/${participant.get("id")}/${token}`;
+                                res.json({message: "Success"});
+                                participant.set("token", token);
+                                participant.set("url", frontEndUrl);
+                                await notification("password_reset_request_created", campObj.data.id, participant, participant);
+                                next();
+                            })
+                        });
+                    });
+                });
+            }else{
+                res.json({"message" : "Reset link sent"});
+            }
+        });
     });
 
     router.put("/participants/:id(\\d+)", validate(Participant), async function (req, res, next) {
