@@ -12,6 +12,8 @@ let verifyAuth = require("./middlewares/verifyAuth");
 let Url = require("../models/url");
 let ResetRequest = require("../models/password-reset-request");
 let async = require("async");
+let Commission = require("../models/commission");
+let Reward = require('../models/reward');
 //const { delete } = require("../config/db");
 
 module.exports = function(router) {
@@ -129,6 +131,54 @@ module.exports = function(router) {
                 }
             });
         }
+    });
+
+    router.get('/participant/commissions/:id', validate(Participant), function(req, res) {
+        let participant = res.locals.valid_object;
+        Commission.findAll('participant_id', participant.data.id, function(commissions){
+            if(commissions && commissions.length > 0){
+                async.mapSeries(commissions, function(parent, callback){
+                    parent.attachReferences(function(updatedParent){
+                        callback(null, updatedParent);
+                    })
+                },function(err, result){
+                    if(err){
+                        console.error("error attaching references: ", err);
+                    }
+                    else{
+                        let out = result.map(entity => entity.data);
+                        res.json(out);
+                    }
+
+                })
+            }else {
+                res.json({'message': 'No commissions'})
+            }
+        })
+    });
+
+    router.get('/participant/payouts/:id', validate(Participant), function(req, res) {
+        let participant = res.locals.valid_object;
+        Reward.findAll('participant_id', participant.data.id, function(rewards){
+            if(rewards && rewards.length > 0){
+                async.mapSeries(rewards, function(parent, callback){
+                    parent.attachReferences(function(updatedParent){
+                        callback(null, updatedParent);
+                    })
+                },function(err, result){
+                    if(err){
+                        console.error("error attaching references: ", err);
+                    }
+                    else{
+                        let out = result.map(entity => entity.data);
+                        res.json(out);
+                    }
+
+                })
+            }else {
+                res.json({'message': 'No pending payout'})
+            }
+        })
     });
 
     router.post('/participants/login/:campaignName', async function(req, res){
