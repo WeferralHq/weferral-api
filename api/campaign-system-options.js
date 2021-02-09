@@ -2,24 +2,71 @@ let CampaignSystemOption = require('../models/campaign-sys-option');
 let Campaign = require("../models/campaign");
 let cloudinary = require('../config/cloudinary');
 let File = require('../models/file');
+let path = require("path");
+let multer = require("multer");
+let upload = multer({dest: 'images/'});
+//let systemFilePath = "uploads/system-options";
+
+let systemFiles = ['front_page_image', 'brand_logo'];
+/*let systemStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        mkdirp(systemFilePath, err => cb(err, systemFilePath))
+    },
+    filename: function (req, file, cb) {
+        require('crypto').pseudoRandomBytes(8, function (err, raw) {
+            cb(err, err ? undefined : req.params.id + "-" + raw.toString('hex'))
+        })
+    }
+});*/
+
 module.exports = function(router) {
 
-    router.post('/system-options/file/:id', function (req, res, next){
-        let campaign_id = req.params.id;
-        cloudinary.uploader.upload(req.body.image).then((result)=>{
-            let newFile = new File({
-                'campaign_id': campaign_id,
-                'name': req.body.name,
-                'url': result.secure_url,
-                'public_id': result.public_id
-            })
+    router.post('/system-options/file/:id', upload.single('file'), function (req, res, next){
+        if (systemFiles.indexOf(req.params.id) > -1) {
+            let campaign_id = req.params.id;
+            cloudinary.uploader.upload(req.file.path).then((result) => {
+                let newFile = new File({
+                    'campaign_id': campaign_id,
+                    'name': req.body.name,
+                    'url': result.secure_url,
+                    'public_id': result.public_id
+                })
 
-            newFile.create(function (created_file){
-                if(created_file.data){
-                    res.json(created_file.map(entity => entity.data));
-                }
+                newFile.create(function (created_file) {
+                    if (created_file.data) {
+                        res.json(created_file.map(entity => entity.data));
+                    }
+                })
             })
-        })
+        }
+    });
+
+    router.get('/system-options/file/:id', function (req, res, next){
+        if (systemFiles.indexOf(req.params.id) > -1) {
+            File.findOne('name', req.params.id, function (image) {
+                if (image.data) {
+                    let fileUrl = image.data.url;
+                    let options = {
+                        headers: {
+                            'Content-Disposition': "inline; filename=" + file.get("name")
+                        }
+                    };
+
+                    res.sendFile(fileUrl, options);
+                } else {
+                    //todo: make less hardcoded.. maybe seperate api calls again
+                    if(req.params.id == "brand_logo"){
+                        return res.sendFile(path.resolve(__dirname, "../public/assets/logo-primary.svg"));
+                    }
+                    else {
+                        res.status("400").send("no image");
+                    }
+                }
+            });
+        }
+        else {
+            res.status("400").send("not a valid system file option");
+        }
     });
 
     router.get('/secret-key', function(req, res, next){
