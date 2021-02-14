@@ -21,7 +21,7 @@ module.exports = function(router) {
         })
     });
 
-    router.post('/conversion/:referral_code/events', async function(req, res){
+    router.post('/events/conversion/:referral_code', async function(req, res){
         let referral_code = req.params.referral_code;
         let uniqueId = req.body.userId;
         let customer = (await Customer.find({"unique_id": uniqueId}))[0];

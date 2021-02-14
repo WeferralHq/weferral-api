@@ -40,6 +40,7 @@ module.exports = function(router) {
     router.post('/participant/invite/:campaign_id', async function (req, res, next) {
         let campaign_id = req.params.campaign_id;
         let campObj = (await Campaign.find({"id": campaign_id}))[0];
+        let joinName = campObj.data.name.toLowerCase().replace(/\s+/g,"_");
         function reinviteParticipant(participant){
             let invite = new Invitation({
                 "participant_id": participant.get('id')
@@ -47,7 +48,7 @@ module.exports = function(router) {
             invite.create(async function (err, result) {
                 if (!err) {
                     let apiUrl = req.protocol + '://' + req.get('host') + "/api/v1/participant/" + campObj.data.name +"?token=" + result.get("token");
-                    let frontEndUrl = req.protocol + '://' + req.get('host') + "/invitation/" + result.get("token");
+                    let frontEndUrl = req.protocol + '://' + req.get('host') + joinName + "/invitation/" + result.get("token");
                     //EventLogs.logEvent(req.user.get('id'), `participants ${req.body.email} was reinvited by user ${req.user.get('email')}`);
                     res.locals.json = {token: result.get("token"), url: frontEndUrl, api: apiUrl};
                     result.set('url', frontEndUrl);
@@ -95,7 +96,7 @@ module.exports = function(router) {
                                 invite.create(async function (err, result) {
                                     if (!err) {
                                         let apiUrl = req.protocol + '://' + req.get('host') + "/api/v1/participant/" + campObj.data.name +"?token=" + result.get("token");
-                                        let frontEndUrl = req.protocol + '://' + req.get('host') + "/invitation/" + result.get("token");
+                                        let frontEndUrl = req.protocol + '://' + req.get('host') + joinName + "/invitation/" + result.get("token");
                                         //EventLogs.logEvent(req.user.get('id'), `participants ${req.body.email} was invited by user ${req.user.get('email')}`);
                                         res.locals.json = {token: result.get("token"), url: frontEndUrl, api: apiUrl};
                                         newParticipant.set('url', frontEndUrl);
