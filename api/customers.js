@@ -1,5 +1,6 @@
 let Customer = require('../models/customer');
 let Participant = require('../models/participant');
+let webhook = require('../lib/webhook');
 
 module.exports = function(router) {
 
@@ -57,7 +58,8 @@ module.exports = function(router) {
                     });
                     customer.set('metadata', metaObj);
                     let updateCustomer = await customer.update();
-                    return res.status(200).json({'message': 'Customer Successfully Updated'});
+                    res.status(200).json({'message': 'Customer Successfully Updated'});
+                    await webhook('updated_customer', updateCustomer);
                 })
                 //let newCustomer = new Customer({'name': custData.name, 'email': custData.email});
                 

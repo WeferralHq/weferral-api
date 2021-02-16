@@ -1,12 +1,11 @@
 let Participant = require("../models/participant");
-//let dispatchEvent = require("../config/redux/store").dispatchEvent;
-//let store = require("../config/redux/store");
 let validate = require("./middlewares/validate");
 let Campaign = require('../models/campaign');
 let bcrypt = require("bcryptjs");
 let Invitation = require('../models/invitation');
 let EventLogs = require('../models/event-log');
 let notification = require('../lib/notification');
+let webhook = require('../lib/webhook');
 let jwt = require("jsonwebtoken");
 let verifyAuth = require("./middlewares/verifyAuth");
 let Url = require("../models/url");
@@ -14,7 +13,6 @@ let ResetRequest = require("../models/password-reset-request");
 let async = require("async");
 let Commission = require("../models/commission");
 let Reward = require('../models/reward');
-//const { delete } = require("../config/db");
 
 module.exports = function(router) {
 
@@ -310,6 +308,7 @@ module.exports = function(router) {
         Object.assign(participant.data, req.body);
         console.log("updating the participant");
         let updateParticipant = await participant.update();
+        await webhook('updated_participant', updateParticipant);
         delete updateParticipant.password;
         let out = {
             message: 'User is successfully updated',
@@ -318,98 +317,85 @@ module.exports = function(router) {
         res.json(out);
     });
 
-    router.get('/api/v1/verifyhash/:thisId', function(req, res) {
-        var url_Id = req.param('thisId');
-        Participant.findAll('referral_code', url_Id, function(err, rows, fields){
-            if(err) throw err;
-            if(rows.length !== 0) {
-                var approvedBy = rows.data.approved_by;
-                var status = rows.data.status;
-                var emailaddress = rows.data.email;
-                //if not yet verified, change status to verified
-                if(status === "disconnected") {
-                    connection.query('UPDATE emails SET `verified`=(?) WHERE `referralcode`=(?)',["true", url_Id], function(err, rows, fields){
-                        if(err) throw err;
-                        //add email address to contact list now that it's verified
-                        var addContact = sg.emptyRequest({
-                          method: 'POST',
-                          path: '/v3/contactdb/recipients',
-                          body: [{ "email": emailaddress }]
-                        });
-                        sg.API(addContact, function(error, response) {
-                            var recipient_Id = response.body.persisted_recipients.toString();
-                            var addContactToList = sg.emptyRequest({
-                              method: 'POST',
-                              path: '/v3/contactdb/lists/' + adminConfig.list_Id + '/recipients/' + recipient_Id,
-                            });
-                            sg.API(addContactToList, function(error, response) {
-                                //add response
-                            });
-                        });
-                        //add a referral point to the contestant that referred the newly verified contestant
-                        connection.query('UPDATE emails SET referrals = referrals + 1 WHERE `emailaddress`=(?)',[referredBy], function(err, rows, fields){
-                            if(err) throw err;
-                        });
-                    });
-                }
-                res.json(200);
-            } else {
-                res.json(401);
-            }
-        });
-    });
-
-    router.post('/participant/:campaignName', function(req, res) {
+    router.post('/participant/:campaignName/register', function(req, res) {
+        let token = req.query.token;
         let campName = req.params.campaignName;
         campName = campName.replace(/[^a-zA-Z ]/g, " ");
+        if (token) {
+            Invitation.findOne("token", token, function (foundInvitation) {
+                console.log(foundInvitation);
+                if (!foundInvitation.data) {
+                    res.status(500).send({error: "invalid token specified"})
+                } else {
+                    Participant.findById(foundInvitation.get("participant_id"), function (newParticipant) {
+                        req.body.id = newParticipant.get("id");
+                        req.body.password = bcrypt.hashSync(req.body.password, 10);
+                        Object.assign(newParticipant.data, req.body);
+                        newParticipant.set("status", "active");
+                        newParticipant.update(function (err, updatedParticipant) {
+                            foundInvitation.delete(function (response) {
+                                console.log("invitation deleted");
+                                res.locals.json = updatedParticipant.data;
+                                res.locals.valid_object = updatedParticipant;
+                                res.status(200).json( updatedParticipant );
+                                await webhook('new_participant', updatedParticipant);
+                            })
+                        })
 
-        Participant.findAll("email", req.body.email, (participant) => {
-            if (participant && participant.length > 0) {
-                return res.status(400).json({error: "This email address has alraedy signed up for this Referral Program"});
-            }
-        });
-        let columnName = ['fname', 'lname', 'email', 'password'];
-        if(req.body.password){
-            let password = require("bcryptjs").hashSync(req.body.password, 10);
-            let mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-            let metaArr = [];
-            if (!req.body.email.match(mailFormat)) {
-                res.status(400).json({error: 'Invalid email format'});
-            }else {
-                new Promise(function (resolve, reject) {
-                    Campaign.findOne('name', campName, function (result) {
-                        if (result.data) {
-                            return resolve(result.data);
-                        } else {
-                            return reject('ERROR: No Campaign Found!');
-                        }
                     });
-                }).then(function (campaign) {
-                    let newParticipant = new Participant(req.body);
-                    newParticipant.set('password', password);
-                    Object.keys(req.body).forEach((key, index) => {
-                        if (columnName.indexOf(key) < 0) {
-                            metaArr.push(`${key}: ${req.body[key]}`);
+                }
+            });
+        }else{
+            Participant.findAll("email", req.body.email, (participant) => {
+                if (participant && participant.length > 0) {
+                    return res.status(400).json({error: "This email address has alraedy signed up for this Referral Program"});
+                }
+            });
+            let columnName = ['fname', 'lname', 'email', 'password'];
+            if(req.body.password){
+                let password = require("bcryptjs").hashSync(req.body.password, 10);
+                let mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+                let metaArr = [];
+                if (!req.body.email.match(mailFormat)) {
+                    res.status(400).json({error: 'Invalid email format'});
+                }else {
+                    new Promise(function (resolve, reject) {
+                        Campaign.findOne('name', campName, function (result) {
+                            if (result.data) {
+                                return resolve(result.data);
+                            } else {
+                                return reject('ERROR: No Campaign Found!');
+                            }
+                        });
+                    }).then(function (campaign) {
+                        let newParticipant = new Participant(req.body);
+                        newParticipant.set('password', password);
+                        Object.keys(req.body).forEach((key, index) => {
+                            if (columnName.indexOf(key) < 0) {
+                                metaArr.push(`${key}: ${req.body[key]}`);
+                            }
+                        });
+                        let metadata = Object.assign({}, metaArr);
+                        newParticipant.set('metadata', metadata);
+                        newParticipant.set('campaign_id', campaign.id);
+                        newParticipant.set('name', `${req.body.fname} ${req.body.lname}`);
+                        if (campaign.auto_approve === true) {
+                            newParticipant.set('status', 'active');
                         }
-                    });
-                    let metadata = Object.assign({}, metaArr);
-                    newParticipant.set('metadata', metadata);
-                    newParticipant.set('campaign_id', campaign.id);
-                    newParticipant.set('name', `${req.body.fname} ${req.body.lname}`);
-                    if (campaign.auto_approve === true) {
-                        newParticipant.set('status', 'active');
-                    }
-                    newParticipant.createParticipant(function (err, result) {
-                        
-                        if (err) {
-                            res.status(403).json({ error: err });
-                        } else {
-                            res.status(200).json( result );
-                        }
-                    });
-                })
+                        newParticipant.createParticipant(function (err, result) {
+                            
+                            if (err) {
+                                res.status(403).json({ error: err });
+                            } else {
+                                res.status(200).json( result );
+                                await webhook('new_participant', result);
+                            }
+                        });
+                    })
+                }
             }
         }
+        
     });
 
     require("./entity")(router, Participant, "participants");
