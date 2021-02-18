@@ -333,7 +333,7 @@ module.exports = function(router) {
                         Object.assign(newParticipant.data, req.body);
                         newParticipant.set("status", "active");
                         newParticipant.update(function (err, updatedParticipant) {
-                            foundInvitation.delete(function (response) {
+                            foundInvitation.delete(async function (response) {
                                 console.log("invitation deleted");
                                 res.locals.json = updatedParticipant.data;
                                 res.locals.valid_object = updatedParticipant;
@@ -382,7 +382,7 @@ module.exports = function(router) {
                         if (campaign.auto_approve === true) {
                             newParticipant.set('status', 'active');
                         }
-                        newParticipant.createParticipant(function (err, result) {
+                        newParticipant.createParticipant(async function (err, result) {
                             
                             if (err) {
                                 res.status(403).json({ error: err });

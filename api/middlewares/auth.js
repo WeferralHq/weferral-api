@@ -12,16 +12,14 @@ let swaggerJSON = require("../../api-docs/api-paths.json");
  *
  */
 
-let isAuthorized = function (user, callback){
+let isAuthorized = async function (user){
+    let adminStatus = false;
+    let role = (await Role.find({'id': user.get("role_id")}))[0];
+    if(role.get('role_name') === 'admin'){
+        adminStatus = true;
+    }
 
-    //TODO: clean this up so hasPermission can be passed multiple roles
-    Role.findOne("id", user.get("role_id"), function(role){
-        let adminStatus = false;
-        if(role.get('name') === 'admin'){
-            adminStatus = true;
-        }
-        callback(adminStatus)
-    })
+    return adminStatus;
 }
 
 
@@ -36,7 +34,7 @@ let isAuthorized = function (user, callback){
 
  //todo: move parameters into a config json... icky icky!
 let auth = function(permission=null, model=null, correlation_id="user_id", bypassPermissions=["can_administrate"]) {
-    return function (req, res, next) {
+    return async function (req, res, next) {
         // if user is authenticated in the session, call the next() to call the next request handler
         // Passport adds this method to request object. A middleware is allowed to add properties to
         // request and response object
@@ -52,9 +50,10 @@ let auth = function(permission=null, model=null, correlation_id="user_id", bypas
             return res.status(401).json({"error" : "Account suspended"});
         }
 
-        isAuthorized(req.user, function (status) {
-            res.locals.permissions = permissions;
-                if(status){
+        let isauthorize = await isAuthorized(req.user);
+
+            //res.locals.permissions = permissions;
+                if(isauthorize){
                     if (model) {
                         //TODO be able to handle other ids, not just 'id'
                         let id = req.params.id;
@@ -76,7 +75,6 @@ let auth = function(permission=null, model=null, correlation_id="user_id", bypas
                 else{
                     return res.status(401).json({error: "Unauthorized user"});
                 }
-        });
 
     };
 };
