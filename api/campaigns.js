@@ -1,9 +1,10 @@
 let Campaign = require("../models/campaign");
 let validate = require("./middlewares/validate");
 let Url = require("../models/url");
+let auth = require("./middlewares/auth");
 
 module.exports = function(router) {
-    router.post('/campaigns/:id/republish', validate(Campaign), function(req, res, next) {
+    router.post('/campaigns/:id/republish', auth(), validate(Campaign), function(req, res, next) {
         let campaign_object = res.locals.valid_object;
         if(!campaign_object.publish) {
             let updatedCampaign = campaign_object.republish();
@@ -11,7 +12,7 @@ module.exports = function(router) {
         }
     });
 
-    router.get('/campaigns', function (req, res, next) {
+    router.get('/campaigns', auth(), function (req, res, next) {
         Campaign.findAll(true, true, (campaigns) => {
             if (campaigns && campaigns.length > 0) {
                 let camps = (campaigns.map(entity => entity.data));
@@ -20,14 +21,14 @@ module.exports = function(router) {
         });
     });
 
-    router.get("/campaign/:id(\\d+)", validate(Campaign), function (req, res, next) {
+    router.get("/campaign/:id(\\d+)", auth(), validate(Campaign), function (req, res, next) {
         let campaign = res.locals.valid_object;
         campaign.attachReferences(updatedParent => {
             res.status(200).json(updatedParent);
         });
     });
 
-    router.put("/campaign/url/:id/:Smedia", function(req, res, next){
+    router.put("/campaign/url/:id/:Smedia", auth(), function(req, res, next){
         let campaign_id = req.params.id;
         let social_share = req.params.Smedia;
         Url.findOne('campaign_id', campaign_id, async function(result){
@@ -38,7 +39,7 @@ module.exports = function(router) {
         })
     })
 
-    router.post('/campaign-page/:id', function(req, res, next){
+    router.post('/campaign-page/:id', auth(), function(req, res, next){
         let id = req.params.id;
 
         Campaign.findById(id, async function (result) {
@@ -48,7 +49,7 @@ module.exports = function(router) {
         })
     })
 
-    router.post('/campaigns/:id/unpublish', validate(Campaign), function(req, res, next) {
+    router.post('/campaigns/:id/unpublish', auth(), validate(Campaign), function(req, res, next) {
         let campaign_object = res.locals.valid_object;
         if(campaign_object.publish) {
             let updatedCampaign = campaign_object.unpublish();
@@ -56,7 +57,7 @@ module.exports = function(router) {
         }
     });
 
-    router.post("/campaign", function (req, res, next) {
+    router.post("/campaign", auth(), function (req, res, next) {
         //req.body.user_id = req.user.get("id");
         req.body.name = req.body.name.toLowerCase();
 
@@ -80,7 +81,7 @@ module.exports = function(router) {
         });
     });
 
-    router.post("/campaign/:id/delete", function (req, res, next) {
+    router.post("/campaign/:id/delete", auth(), function (req, res, next) {
         let id = req.params.id;
 
         Campaign.findById(id,  function (delCamp) {

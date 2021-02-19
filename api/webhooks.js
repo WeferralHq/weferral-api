@@ -1,6 +1,7 @@
 let Webhook = require('../models/webhook');
+let auth = require('./middlewares/auth');
 module.exports = function(router) {
-    router.post('/webhooks', function(req,res,next){
+    router.post('/webhooks', auth(), function(req,res,next){
         let newWebhook = new Webhook(req.body);
         newWebhook.create(function(err,result){
             if(result){
@@ -9,7 +10,7 @@ module.exports = function(router) {
         })
     });
 
-    router.get('/webhooks/:campaign_id', function(req,res,next){
+    router.get('/webhooks/:campaign_id', auth(), function(req,res,next){
         let key = 'campaign_id';
         let value = req.params.campaign_id;
         if (!value) {

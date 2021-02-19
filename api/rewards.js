@@ -3,7 +3,7 @@ let Reward = require('../models/reward');
 let validate = require('./middlewares/validate');
 let _ = require('lodash');
 let Redemption = require('../models/redemption');
-//let auth = require('../middleware/auth');
+let auth = require('./middlewares/auth');
 let async = require("async");
 
 module.exports = function(router) {
@@ -21,7 +21,7 @@ module.exports = function(router) {
             }
         })
     })
-    router.get('/reward/payout/:id(\\d+)', validate(Reward), function(req, res, next){
+    router.get('/reward/payout/:id(\\d+)', auth(), validate(Reward), function(req, res, next){
         let reward = res.locals.valid_object;
         let today = new Date().toISOString().slice(0,10);
         let newRedeem = new Redemption({

@@ -13,6 +13,7 @@ let ResetRequest = require("../models/password-reset-request");
 let async = require("async");
 let Commission = require("../models/commission");
 let Reward = require('../models/reward');
+let auth = require('./middlewares/auth');
 
 module.exports = function(router) {
 
@@ -35,7 +36,7 @@ module.exports = function(router) {
         });
     });
 
-    router.post('/participant/invite/:campaign_id', async function (req, res, next) {
+    router.post('/participant/invite/:campaign_id', auth(), async function (req, res, next) {
         let campaign_id = req.params.campaign_id;
         let campObj = (await Campaign.find({"id": campaign_id}))[0];
         let joinName = campObj.data.name.toLowerCase().replace(/\s+/g,"_");
@@ -209,14 +210,14 @@ module.exports = function(router) {
         res.json(participant);
     });
 
-    router.delete('/participant/:id(\\d+)', validate(Participant), function(req,res){
+    router.delete('/participant/:id(\\d+)', auth(), validate(Participant), function(req,res){
         let participant = res.locals.valid_object;
         participant.deleteParticipant(function(result){
             res.json(result);
         });
     });
 
-    router.get('/participant/suspend/:id', validate(Participant), function(req,res){
+    router.get('/participant/suspend/:id', auth(), validate(Participant), function(req,res){
         let participant = res.locals.valid_object;
         participant.suspend(function(result){
             res.json(result);
@@ -299,7 +300,7 @@ module.exports = function(router) {
 
     });
 
-    router.put("/participants/:id(\\d+)", validate(Participant), async function (req, res, next) {
+    router.put("/participants/:id(\\d+)", verifyAuth(), validate(Participant), async function (req, res, next) {
         let participant = res.locals.valid_object;
         req.body.id = req.params.id;
         if (req.body.password) {

@@ -2,10 +2,10 @@
 let Notification = require('../models/notification');
 let validate = require('./middlewares/validate');
 let async = require("async");
-//let auth = require('../middleware/auth');
+let auth = require('./middlewares/auth');
 
 module.exports = function(router) {
-    router.get(`/notifications/own`, function(req, res, next){
+    router.get(`/notifications/own`, auth(), function(req, res, next){
         let references = Notification.references || [];
         Notification.findAll(true, true, function (parents) {
             parents = parents.filter(resource => {

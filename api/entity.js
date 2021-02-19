@@ -1,6 +1,7 @@
 let validate = require('./middlewares/validate');
 let EventLogs = require('../models/event-log');
 let async = require("async");
+let auth = require("./middlewares/auth");
 //let store = require("../config/redux/store");
 
 //TODO : Strip password field from getters
@@ -10,7 +11,7 @@ module.exports = function (router, model, resourceName, userCorrelator) {
     let references = model.references || [];
 
     if (userCorrelator) {
-        router.get(`/${resourceName}/own`, function (req, res, next) {
+        router.get(`/${resourceName}/own`, auth(), function (req, res, next) {
             let key = req.query.key;
             let value = req.query.value;
             if (!key || !value) {
@@ -47,7 +48,7 @@ module.exports = function (router, model, resourceName, userCorrelator) {
     }
 
 
-    router.get(`/${resourceName}/`, function (req, res, next) {
+    router.get(`/${resourceName}/`, auth(), function (req, res, next) {
         let key = req.query.key;
         let value = req.query.value;
         if (!key || !value) {
@@ -68,7 +69,7 @@ module.exports = function (router, model, resourceName, userCorrelator) {
     });
 
 
-    router.get(`/${resourceName}/search`, function (req, res, next) {
+    router.get(`/${resourceName}/search`, auth(), function (req, res, next) {
         model.search(req.query.key, req.query.value, function (parents) {
             if (references === undefined || references.length == 0 || parents.length == 0) {
                 res.locals.json = parents.map(entity => entity.data)
@@ -96,7 +97,7 @@ module.exports = function (router, model, resourceName, userCorrelator) {
     });
 
 
-    router.get(`/${resourceName}/:id(\\d+)`, validate(model), function (req, res, next) {
+    router.get(`/${resourceName}/:id(\\d+)`, auth(), validate(model), function (req, res, next) {
         let entity = res.locals.valid_object;
         if (references === undefined || references.length == 0) {
             res.locals.json = entity.data;
@@ -111,7 +112,7 @@ module.exports = function (router, model, resourceName, userCorrelator) {
     });
 
     //TODO Working for single update, need batch update method to work for children
-    router.put(`/${resourceName}/:id(\\d+)`, validate(model), async function (req, res, next) {
+    router.put(`/${resourceName}/:id(\\d+)`, auth(), validate(model), async function (req, res, next) {
         try {
             let entity = res.locals.valid_object;
             await model.database.transaction(async function (trx) {
@@ -151,7 +152,7 @@ module.exports = function (router, model, resourceName, userCorrelator) {
     });
 
 
-    router.delete(`/${resourceName}/:id(\\d+)`, validate(model), async function (req, res, next) {
+    router.delete(`/${resourceName}/:id(\\d+)`, auth(), validate(model), async function (req, res, next) {
         let entity = res.locals.valid_object;
         entity = await entity.attachReferences();
         entity.delete(function (err, result) {
@@ -169,7 +170,7 @@ module.exports = function (router, model, resourceName, userCorrelator) {
     });
 
 
-    router.post(`/${resourceName}`, function (req, res, next) {
+    router.post(`/${resourceName}`, auth(), function (req, res, next) {
         let entity = new model(req.body);
         entity.create(async function (err, newEntity) {
             if(err){

@@ -5,23 +5,14 @@ let File = require('../models/file');
 let path = require("path");
 let multer = require("multer");
 let upload = multer({dest: 'images/'});
+let auth = require("./middlewares/auth");
 //let systemFilePath = "uploads/system-options";
 
 let systemFiles = ['front_page_image', 'brand_logo'];
-/*let systemStorage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        mkdirp(systemFilePath, err => cb(err, systemFilePath))
-    },
-    filename: function (req, file, cb) {
-        require('crypto').pseudoRandomBytes(8, function (err, raw) {
-            cb(err, err ? undefined : req.params.id + "-" + raw.toString('hex'))
-        })
-    }
-});*/
 
 module.exports = function(router) {
 
-    router.post('/system-options/file/:id', upload.single('file'), function (req, res, next){
+    router.post('/system-options/file/:id', auth(), upload.single('file'), function (req, res, next){
         if (systemFiles.indexOf(req.params.id) > -1) {
             let campaign_id = req.params.id;
             cloudinary.uploader.upload(req.file.path).then((result) => {
@@ -41,7 +32,7 @@ module.exports = function(router) {
         }
     });
 
-    router.get('/system-options/file/:id', function (req, res, next){
+    router.get('/system-options/file/:id', auth(), function (req, res, next){
         if (systemFiles.indexOf(req.params.id) > -1) {
             File.findOne('name', req.params.id, function (image) {
                 if (image.data) {
@@ -74,7 +65,7 @@ module.exports = function(router) {
         res.json(secretKey);
     });
 
-    router.get('/system-options/file/:id', function (req, res, next){
+    router.get('/system-options/file/:id', auth(), function (req, res, next){
         let campaign_id = req.params.id;
         File.findAll("campaign_id", campaign_id, function (results) {
             res.json(results.map(entity => entity.data));
@@ -110,7 +101,7 @@ module.exports = function(router) {
         
     })
 
-    router.put('/system-settings/:campaignId', function (req, res, next) {
+    router.put('/system-settings/:campaignId', auth(), function (req, res, next) {
         let campaignId = req.params.campaignId;
         let updateData = req.body;
         CampaignSystemOption.findAll("campaign_id", campaignId, function (options) {
