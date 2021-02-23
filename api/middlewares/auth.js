@@ -1,5 +1,16 @@
 let Role = require("../../models/role.js");
 let swaggerJSON = require("../../api-docs/api-paths.json");
+let Participant = require("../../models/participant");
+let jwt = require('jsonwebtoken');
+
+let extractToken = function(req){
+    if(req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer'){
+        return req.headers.authorization.split(' ')[1];
+    } else if(req.query && req.query.token){
+        return req.query.token;
+    }
+    return null;
+}
 
 
 //todo:  allow for multiple permissions
@@ -35,46 +46,53 @@ let isAuthorized = async function (user){
  //todo: move parameters into a config json... icky icky!
 let auth = function(permission=null, model=null, correlation_id="user_id", bypassPermissions=["can_administrate"]) {
     return async function (req, res, next) {
-        // if user is authenticated in the session, call the next() to call the next request handler
-        // Passport adds this method to request object. A middleware is allowed to add properties to
-        // request and response object
-
-
-        let permissionToCheck = permission;
-
-        if (!req.isAuthenticated()) {
-            return res.status(401).json({"error": "Unauthenticated"});
-        }
-
-        if(req.user.data.status == "suspended"){
-            return res.status(401).json({"error" : "Account suspended"});
-        }
-
         let isauthorize = await isAuthorized(req.user);
+        if (isauthorize) {
+            if (!req.isAuthenticated()) {
+                return res.status(401).json({ "error": "Unauthenticated" });
+            }
 
-            //res.locals.permissions = permissions;
-                if(isauthorize){
-                    if (model) {
-                        //TODO be able to handle other ids, not just 'id'
-                        let id = req.params.id;
-                        model.findOne("id", id, function (result) {
-                            console.log("correlation id: " + correlation_id + " " + req.user.get("id"));
-                            if (result.get(correlation_id) == req.user.get("id")) {
-                                console.log("user owns id " + id + "or has can_manage")
-                                return next();
-                            }
-                            return res.status(401).json({error: "Unauthorized user"});
-
-                        });
-                        return;
-                    }
-                    else{
+            if (req.user.data.status == "suspended") {
+                return res.status(401).json({ "error": "Account suspended" });
+            }
+            if (model) {
+                //TODO be able to handle other ids, not just 'id'
+                let id = req.params.id;
+                model.findOne("id", id, function (result) {
+                    console.log("correlation id: " + correlation_id + " " + req.user.get("id"));
+                    if (result.get(correlation_id) == req.user.get("id")) {
+                        console.log("user owns id " + id + "or has can_manage")
                         return next();
                     }
-                }
-                else{
-                    return res.status(401).json({error: "Unauthorized user"});
-                }
+                    return res.status(401).json({ error: "Unauthorized user" });
+
+                });
+                return;
+            }
+            else {
+                return next();
+            }
+        }
+        else {
+            let participant = res.locals.valid_object;
+
+            if (participant.data.status == "suspended") {
+                return res.status(401).json({ "error": "Participant suspended" });
+            }
+            let token = extractToken(req);
+
+            if (token !== null) {
+                let obj = await jwt.verify(token, process.env.SECRET_KEY);
+                Participant.findById(obj.pid, function (result) {
+                    if (result.data) {
+                        return next();
+                    }
+                    return res.status(401).json({ error: "Unauthorized participant" });
+                })
+            } else {
+                return res.status(401).json({ "error": "Unauthenticated" });
+            }
+        }
 
     };
 };

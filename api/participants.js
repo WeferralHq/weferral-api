@@ -7,7 +7,6 @@ let EventLogs = require('../models/event-log');
 let notification = require('../lib/notification');
 let webhook = require('../lib/webhook');
 let jwt = require("jsonwebtoken");
-let verifyAuth = require("./middlewares/verifyAuth");
 let Url = require("../models/url");
 let ResetRequest = require("../models/password-reset-request");
 let async = require("async");
@@ -205,7 +204,7 @@ module.exports = function(router) {
         }
     });
 
-    router.get('/participant/:id(\\d+)', validate(Participant), verifyAuth(), function(req,res){
+    router.get('/participant/:id(\\d+)', validate(Participant), auth(), function(req,res){
         let participant = res.locals.valid_object;
         res.json(participant);
     });
@@ -224,7 +223,7 @@ module.exports = function(router) {
         });
     });
 
-    router.get('/participant/profile/:id', validate(Participant), verifyAuth(), async function(req,res){
+    router.get('/participant/profile/:id', validate(Participant), auth(), async function(req,res){
         let Obj = res.locals.valid_object;
         let url = (await Url.find({'campaign_id': Obj.data.campaign_id}))[0];
         let stats = await Obj.participantStats();
@@ -300,7 +299,7 @@ module.exports = function(router) {
 
     });
 
-    router.put("/participants/:id(\\d+)", verifyAuth(), validate(Participant), async function (req, res, next) {
+    router.put("/participants/:id(\\d+)", auth(), validate(Participant), async function (req, res, next) {
         let participant = res.locals.valid_object;
         req.body.id = req.params.id;
         if (req.body.password) {

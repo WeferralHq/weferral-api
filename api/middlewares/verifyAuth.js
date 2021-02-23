@@ -1,8 +1,7 @@
 let Participant = require("../../models/participant");
-let jwt = require('jsonwebtoken');
 
 let extractToken = function(req){
-    if(req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer'){
+    if(req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Basic'){
         return req.headers.authorization.split(' ')[1];
     } else if(req.query && req.query.token){
         return req.query.token;
@@ -18,11 +17,10 @@ let verifyAuth = function(){
         if(participant.data.status == "suspended"){
             return res.status(401).json({"error" : "Participant suspended"});
         }
-        let token = extractToken(req);
+        let acctId = extractToken(req);
 
-        if(token !== null){
-            let obj = await jwt.verify(token, process.env.SECRET_KEY);
-            Participant.findById(obj.pid, function(result){
+        if(acctId !== null){
+            Participant.findOne('account_id', acctId, function(result){
                 if(result.data){
                     return next();
                 }

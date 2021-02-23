@@ -5,8 +5,9 @@ let Participant = require('../models/participant');
 //let Reward = require('../models/reward');
 let Commission = require('../models/commission');
 let campaignCron = require('../config/campaign-cron');
+let verifyAuth = require('./middlewares/verifyAuth');
 
-let getUniqueCustId = function(){
+/*let getUniqueCustId = function(){
     let random_code = Math.random().toString(36).substring(10, 12) + Math.random().toString(36).substring(10, 12);
 
     Customer.findOne('unique_id', random_code, function(result){
@@ -16,14 +17,13 @@ let getUniqueCustId = function(){
     });
 
     return random_code;
-}
+}*/
 
 module.exports = function(router) {
 
-    router.get('/click/:referral_code', function(req, res) {
-        let url_Id = req.params.referral_code;
-        let unique_id = '';
-        Participant.findOne('referral_code', url_Id, function (rows){
+    router.get('/click/:referral_code', verifyAuth(), function(req, res) {
+        let referral_code = req.params.referral_code;
+        Participant.findOne('referral_code', referral_code, function (rows){
             if (rows.data) {
                 if(rows.data.status === 'active') {
                     let campaign_id = rows.data.campaign_id;
@@ -32,28 +32,15 @@ module.exports = function(router) {
                         'campaign_id': campaign_id,
                         'participant_id': participant_id
                     });
-                    if(!req.body.wefUid){
-                        unique_id = getUniqueCustId();
-                    }
-                    let newCust = new Customer({
-                        'unique_id': unique_id,
-                        'campaign_id': campaign_id,
-                        'participant_id': participant_id
-                    })
-                    newCust.createCustomer(function (err, result) {
-                        if (!err) {
-                            newClick.set('ip', req.connection.remoteAddress);
-                            newClick.set('customer_id', result.data.id);
-                            newClick.createClick(function (err, result) {
-                                Campaign.findById(campaign_id, function(campaign) {
-                                    if(!campaign.data){
-                                        return res.status(401).json('Not found');
-                                    }
-                                    return res.status(200).json({'cookie_life': campaign.data.cookie_life, 'wef_uid': unique_id});
-                                })
-                            })
-
-                        }
+                    newClick.set('ip', req.connection.remoteAddress);
+                    newClick.set('customer_id', result.data.id);
+                    newClick.createClick(function (err, result) {
+                        Campaign.findById(campaign_id, function (campaign) {
+                            if (!campaign.data) {
+                                return res.status(401).json('Not found');
+                            }
+                            return res.status(200).json({ 'cookie_life': campaign.data.cookie_life });
+                        })
                     })
                 }
             } else {
@@ -62,10 +49,10 @@ module.exports = function(router) {
         });
     });
 
-    router.post('/events/conversion/:referral_code', async function(req, res){
+    router.post('/events/conversion/:referral_code', verifyAuth(), async function(req, res){
         let referral_code = req.params.referral_code;
-        let uniqueId = req.body.userId;
-        let customer = (await Customer.find({"unique_id": uniqueId}))[0];
+        let uniqueId = req.body.customer_id;
+        let customer = (await Customer.find({"customer_id": uniqueId}))[0];
         Participant.findOne('referral_code', referral_code, function (rows){
             Campaign.findById(rows.data.campaign_id, function(campaign){
                 let rewardType = campaign.data.reward_type;
@@ -102,6 +89,41 @@ module.exports = function(router) {
                 
             })
         })
+    });
+
+    router.post('/events/customer/:referral_code', verifyAuth(), async function(req, res){
+        let referral_code = req.params.referral_code;
+        let uniqueId = req.body.customer_id;
+        let columnName = ['name', 'email'];
+        let custData = req.body.meta_data;
+        let metaObj = {};
+        let customer = (await Customer.find({"customer_id": uniqueId}))[0];
+        let participant = (await Participant.find({"referral_code": referral_code}))[0];
+        if(participant.data && participant.data.status === 'active'){
+            if(!customer.data.id){
+                Object.keys(custData).forEach((key, index) => {
+                    if (columnName.indexOf(key) < 0) {
+                        metaObj = {key: custData[key]}
+                    }
+                });
+                let newCust = new Customer({
+                    'customer_id': uniqueId,
+                    'campaign_id': participant.data.campaign_id,
+                    'participant_id': participant.data.id,
+                    'name': req.body.name,
+                    'email': req.body.email,
+                    'ip': req.connection.remoteAddress,
+                    'metadata': metaObj
+                })
+                newCust.createCustomer(function (err, result) {
+                    if (!err) {
+                        res.json({'message': 'Customer successfully created'});
+                    }else{
+                        res.status(401).json('Not found');
+                    }
+                })
+            }
+        }
     });
 
     return router;
