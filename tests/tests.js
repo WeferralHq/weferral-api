@@ -120,7 +120,7 @@ before('before', function (assert) {
 
 
 test('GET /api/v1/users', function (assert) {
-    let sampleUsers = [ { customer_id: null, email: 'admin', id: 1, last_login: null, name: null, phone: null, references: { funds: [], user_roles: [ { id: 1, role_name: 'admin' } ] }, role_id: 1, status: 'active' }, { customer_id: null, email: 'user', id: 2, last_login: null, name: null, phone: null, references: { funds: [], user_roles: [ { id: 3, role_name: 'user' } ] }, role_id: 3, status: 'active' }, { customer_id: null, email: 'staff', id: 3, last_login: null, name: null, phone: null, references: { funds: [], user_roles: [ { id: 2, role_name: 'staff' } ] }, role_id: 2, status: 'active' } ];
+    let sampleUsers = [ { email: 'admin', id: 1, last_login: null, name: null, phone: null, references: { user_roles: [ { id: 1, role_name: 'admin' } ] }, role_id: 1, status: 'active' }, { customer_id: null, email: 'user', id: 2, last_login: null, name: null, phone: null, references: { user_roles: [ { id: 3, role_name: 'user' } ] }, role_id: 3, status: 'active' }, { customer_id: null, email: 'staff', id: 3, last_login: null, name: null, phone: null, references: { user_roles: [ { id: 2, role_name: 'staff' } ] }, role_id: 2, status: 'active' } ];
     request.get('/api/v1/users')
         .set(baseHeaders)
         .expect(200)

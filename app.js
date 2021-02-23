@@ -21,10 +21,12 @@ module.exports = function (initConfig = null) {
             require('./config/passport.js')(passport);
 
             var app = express();
-            app.use(helmet());
+            app.use(helmet({
+                frameguard: false
+            }));
             //var subpath = express();
 
-            app.use(function(req, res, next) {
+            /*app.use(function(req, res, next) {
                 res.header("Access-Control-Allow-Origin", "http://localhost:4100");
                 res.header("Access-Control-Allow-Credentials", true);
                 res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Authorization, Accept, X-Custom-Header");
@@ -33,7 +35,7 @@ module.exports = function (initConfig = null) {
                     return res.status(200).end();
                 }
                 next();
-            });
+            });*/
 
 
             // uncomment after placing your favicon in /public
@@ -44,6 +46,13 @@ module.exports = function (initConfig = null) {
             app.use(bodyParser.urlencoded({
                 extended: false
             }));
+            app.use(function(req, res, next) {
+                res.header("Access-Control-Allow-Credentials", true);
+                res.header("Access-Control-Allow-Origin", "*");
+                res.header("Access-Control-Allow-Methods", "*");
+                res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+                next();
+            });
             app.use(cookieParser());
 
             // TODO - Why Do we need this key ?
