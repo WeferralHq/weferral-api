@@ -46,32 +46,35 @@ let isAuthorized = async function (user){
  //todo: move parameters into a config json... icky icky!
 let auth = function(permission=null, model=null, correlation_id="user_id", bypassPermissions=["can_administrate"]) {
     return async function (req, res, next) {
-        let isauthorize = await isAuthorized(req.user);
-        if (isauthorize) {
-            if (!req.isAuthenticated()) {
-                return res.status(401).json({ "error": "Unauthenticated" });
+        if (req.user) {
+            let isauthorize = await isAuthorized(req.user);
+            if(isauthorize){
+                if (!req.isAuthenticated()) {
+                    return res.status(401).json({ "error": "Unauthenticated" });
+                }
+    
+                if (req.user.data.status == "suspended") {
+                    return res.status(401).json({ "error": "Account suspended" });
+                }
+                if (model) {
+                    //TODO be able to handle other ids, not just 'id'
+                    let id = req.params.id;
+                    model.findOne("id", id, function (result) {
+                        console.log("correlation id: " + correlation_id + " " + req.user.get("id"));
+                        if (result.get(correlation_id) == req.user.get("id")) {
+                            console.log("user owns id " + id + "or has can_manage")
+                            return next();
+                        }
+                        return res.status(401).json({ error: "Unauthorized user" });
+    
+                    });
+                    return;
+                }
+                else {
+                    return next();
+                }
             }
-
-            if (req.user.data.status == "suspended") {
-                return res.status(401).json({ "error": "Account suspended" });
-            }
-            if (model) {
-                //TODO be able to handle other ids, not just 'id'
-                let id = req.params.id;
-                model.findOne("id", id, function (result) {
-                    console.log("correlation id: " + correlation_id + " " + req.user.get("id"));
-                    if (result.get(correlation_id) == req.user.get("id")) {
-                        console.log("user owns id " + id + "or has can_manage")
-                        return next();
-                    }
-                    return res.status(401).json({ error: "Unauthorized user" });
-
-                });
-                return;
-            }
-            else {
-                return next();
-            }
+            
         }
         else {
             let participant = res.locals.valid_object;

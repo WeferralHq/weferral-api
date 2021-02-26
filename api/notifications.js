@@ -33,6 +33,13 @@ module.exports = function(router) {
             }
         });
     });
+
+    router.get(`/notifications/unread`, auth(), function(req, res, next){
+        Notification.findAll('read', false, function (parents) {
+            let out = (parents.map(entity => entity.data));
+            res.json(out);
+        })
+    });
     
     require("./entity")(router, Notification, "notifications");
 
