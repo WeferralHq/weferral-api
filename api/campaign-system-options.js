@@ -6,6 +6,7 @@ let path = require("path");
 let multer = require("multer");
 let upload = multer({dest: 'images/'});
 let auth = require("./middlewares/auth");
+let User = require("../models/user");
 //let systemFilePath = "uploads/system-options";
 
 let systemFiles = ['front_page_image', 'brand_logo'];
@@ -60,9 +61,10 @@ module.exports = function(router) {
         }
     });
 
-    router.get('/secret-key', function(req, res, next){
+    router.get('/secret-key', auth(), async function(req, res, next){
         let secretKey = process.env.SECRET_KEY;
-        res.json(secretKey);
+        let user = (await User.find({'id': req.user.data.id}))[0];
+        res.json({'secretKey': secretKey, 'account_id': user.data.account_id});
     });
 
     router.get('/system-options/file/:id', auth(), function (req, res, next){
