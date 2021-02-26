@@ -1,4 +1,4 @@
-let Participant = require("../../models/participant");
+let User = require("../../models/user");
 
 let extractToken = function(req){
     if(req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Basic'){
@@ -12,19 +12,14 @@ let extractToken = function(req){
 let verifyAuth = function(){
 
     return async function(req, res, next) {
-        let participant = res.locals.valid_object;
-
-        if(participant.data.status == "suspended"){
-            return res.status(401).json({"error" : "Participant suspended"});
-        }
         let acctId = extractToken(req);
 
         if(acctId !== null){
-            Participant.findOne('account_id', acctId, function(result){
+            User.findOne('account_id', acctId, function(result){
                 if(result.data){
                     return next();
                 }
-                return res.status(401).json({error: "Unauthorized participant"});
+                return res.status(401).json({error: "Unauthorized User"});
             })
         }else{
             return res.status(401).json({"error": "Unauthenticated"});

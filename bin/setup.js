@@ -13,6 +13,7 @@ POSTGRES_DB_USER=${config.db_user || process.env.POSTGRES_DB_USER}
 POSTGRES_DB_NAME=${config.db_name || process.env.POSTGRES_DB_NAME}
 POSTGRES_DB_PASSWORD=${config.db_password || process.env.POSTGRES_DB_PASSWORD}
 POSTGRES_DB_PORT=${config.db_port || process.env.POSTGRES_DB_PORT}
+FRONTEND_URL=${`http://localhost:4100` || process.env.FRONTEND_URL}
 SMTP_HOST=${config.smtp_host || process.env.SMTP_HOST}
 SMTP_USER=${config.smtp_user || process.env.SMTP_USER}
 SMTP_PASSWORD=${config.smtp_password || process.env.SMTP_PASSWORD}
