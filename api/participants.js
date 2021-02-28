@@ -38,7 +38,7 @@ module.exports = function(router) {
     router.post('/participant/invite/:campaign_id', auth(), async function (req, res, next) {
         let campaign_id = req.params.campaign_id;
         let campObj = (await Campaign.find({"id": campaign_id}))[0];
-        let joinName = campObj.data.name.toLowerCase().replace(/\s+/g,"_");
+        let joinName = campObj.data.name.toLowerCase().replace(/\s+/g,"-");
         function reinviteParticipant(participant){
             let invite = new Invitation({
                 "participant_id": participant.get('id')

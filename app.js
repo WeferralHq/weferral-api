@@ -30,6 +30,7 @@ module.exports = function (initConfig = null) {
             app.use(bodyParser.urlencoded({
                 extended: false
             }));
+            require('./api/events')(app);
             app.use(function(req, res, next) {
                 res.header("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
                 res.header("Access-Control-Allow-Credentials", true);
