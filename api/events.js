@@ -6,6 +6,7 @@ let Participant = require('../models/participant');
 let Commission = require('../models/commission');
 let campaignCron = require('../config/campaign-cron');
 let verifyAuth = require('./middlewares/verifyAuth');
+let webhook = require('../lib/webhook');
 
 /*let getUniqueCustId = function(){
     let random_code = Math.random().toString(36).substring(10, 12) + Math.random().toString(36).substring(10, 12);
@@ -71,18 +72,21 @@ module.exports = function(router) {
                 }else {
                     if(rewardType === 'cash_reward' && commissionType === 'fixed'){
                         newCommission.set('amount', rewardPrice);
-                        newCommission.CreateCommission(campaign, function(created_comm){
-                            return res.status(200).json({'message': 'Successful'});
+                        newCommission.CreateCommission(campaign, async function(created_comm){
+                            res.status(200).json({'message': 'Successful'});
+                            await webhook('new_commission', created_comm);
                         })
                     }else if(rewardType === 'cash_reward' && commissionType === 'percentage_sale'){
                         let perc = ((rewardPrice / 100) * req.body.amount).toFixed(3);
                         newCommission.set('amount', perc);
-                        newCommission.CreateCommission(campaign, function(created_comm){
-                            return res.status(200).json({'message': 'Successful'});
+                        newCommission.CreateCommission(campaign, async function(created_comm){
+                            res.status(200).json({'message': 'Successful'});
+                            await webhook('new_commission', created_comm);
                         })
                     } else {
-                        newCommission.create(function(created_comm){
-                            return res.status(200).json(created_comm);
+                        newCommission.create(async function(created_comm){
+                            res.status(200).json(created_comm);
+                            await webhook('new_commission', created_comm);
                         })
                     }
                 }
@@ -115,9 +119,10 @@ module.exports = function(router) {
                     'ip': req.connection.remoteAddress,
                     'metadata': metaObj
                 })
-                newCust.createCustomer(function (err, result) {
+                newCust.createCustomer(async function (err, result) {
                     if (!err) {
                         res.json({'message': 'Customer successfully created'});
+                        await webhook('new_customer', result);
                     }else{
                         res.status(401).json('Not found');
                     }

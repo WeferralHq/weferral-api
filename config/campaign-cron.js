@@ -34,7 +34,8 @@ function trialExpiration(campaign,amount,newCommission) {
             console.log({'message': 'Successful'});
         })
     } else {
-        newCommission.create(function(created_comm){
+        newCommission.create(async function(created_comm){
+            await webhook('new_commission', created_comm);
             console.log(created_comm);
         })
     }

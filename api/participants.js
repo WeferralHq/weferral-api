@@ -16,25 +16,6 @@ let auth = require('./middlewares/auth');
 
 module.exports = function(router) {
 
-    router.get('/checkhash/:referral_code', validate(Participant), function(req, res) {
-        let url_Id = req.param('referral_code');
-        Participant.findOne('referral_code', url_Id, function (rows){
-            if (rows && rows.length > 0) {
-                if(rows.data.status !== 'active') {
-                    let campId = rows.data.campaign_id;
-                    Campaign.findById(campId, function(err, result) {
-                        if(err){
-                            return res.status(401).json('Not found');
-                        }
-                        return res.status(200).json({'cookie_life': result.data.cookie_life});
-                    })
-                }
-            } else {
-                return res.status(401).json('Not found');
-            }
-        });
-    });
-
     router.post('/participant/invite/:campaign_id', auth(), async function (req, res, next) {
         let campaign_id = req.params.campaign_id;
         let campObj = (await Campaign.find({"id": campaign_id}))[0];
