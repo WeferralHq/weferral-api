@@ -62,7 +62,7 @@
         "server-destroy": "^1.0.1",
         "swagger-ui-express": "^4.0.7",
         "validator": "^13.1.17",
-        "yenv": "^2.1.0"
+        "yenv": "^3.0.0"
     },
     "devDependencies": {
         "babel-eslint": "^10.0.1",
