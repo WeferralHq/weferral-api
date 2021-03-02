@@ -11,6 +11,7 @@ let references = [
 let Reward = require('./reward');
 let Commission = require("./base/entity")("commissions", references);
 let moment = require('moment');
+let notification = require('../lib/notification');
 
 let lastDay = function(){
     let tday = new Date()

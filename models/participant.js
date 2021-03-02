@@ -79,4 +79,30 @@ Participant.prototype.suspend = async function (callback) {
     }
 };
 
+Participant.prototype.approve = async function (callback) {
+    let self = this;
+    console.log('Participant status: ', self.data.status);
+    if (self.data.status !== 'invited') {
+        self.data.status = "active";
+        let updatedParticipant = await self.update();
+        callback(updatedParticipant);
+    }
+    else {
+        throw 'Participant can not be approved'
+    }
+};
+
+Participant.prototype.disapprove = async function (callback) {
+    let self = this;
+    console.log('Participant status: ', self.data.status);
+    if (self.data.status !== 'invited') {
+        self.data.status = "inactive";
+        let updatedParticipant = await self.update();
+        callback(updatedParticipant);
+    }
+    else {
+        throw 'Participant can not be disapprove'
+    }
+};
+
 module.exports = Participant;

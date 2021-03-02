@@ -7,6 +7,7 @@ let Commission = require('../models/commission');
 let campaignCron = require('../config/campaign-cron');
 let verifyAuth = require('./middlewares/verifyAuth');
 let webhook = require('../lib/webhook');
+let notification = require('../lib/notification');
 
 /*let getUniqueCustId = function(){
     let random_code = Math.random().toString(36).substring(10, 12) + Math.random().toString(36).substring(10, 12);
@@ -74,6 +75,8 @@ module.exports = function(router) {
                         newCommission.set('amount', rewardPrice);
                         newCommission.CreateCommission(campaign, async function(created_comm){
                             res.status(200).json({'message': 'Successful'});
+                            await notification("referral_new_sale_generated", campaign.data.id, rows, rows);
+                            await notification("admin_new_sale", campaign.data.id, rows, req.user);
                             await webhook('new_commission', created_comm);
                         })
                     }else if(rewardType === 'cash_reward' && commissionType === 'percentage_sale'){
@@ -81,11 +84,15 @@ module.exports = function(router) {
                         newCommission.set('amount', perc);
                         newCommission.CreateCommission(campaign, async function(created_comm){
                             res.status(200).json({'message': 'Successful'});
+                            await notification("referral_new_sale_generated", campaign.data.id, rows, rows);
+                            await notification("admin_new_sale", campaign.data.id, rows, req.user);
                             await webhook('new_commission', created_comm);
                         })
                     } else {
                         newCommission.create(async function(created_comm){
                             res.status(200).json(created_comm);
+                            await notification("referral_new_sale_generated", campaign.data.id, rows, rows);
+                            await notification("admin_new_sale", campaign.data.id, rows, req.user);
                             await webhook('new_commission', created_comm);
                         })
                     }

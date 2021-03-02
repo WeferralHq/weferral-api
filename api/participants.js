@@ -27,7 +27,7 @@ module.exports = function(router) {
             invite.create(async function (err, result) {
                 if (!err) {
                     let apiUrl = req.protocol + '://' + req.get('host') + "/api/v1/participant/" + campObj.data.name +"?token=" + result.get("token");
-                    let frontEndUrl = req.protocol + '://' + req.get('host') + joinName + "/invitation/" + result.get("token");
+                    let frontEndUrl = process.env.FRONTEND_URL + "/" + joinName + "/invitation/" + result.get("token");
                     //EventLogs.logEvent(req.user.get('id'), `participants ${req.body.email} was reinvited by user ${req.user.get('email')}`);
                     res.locals.json = {token: result.get("token"), url: frontEndUrl, api: apiUrl};
                     result.set('url', frontEndUrl);
@@ -75,7 +75,7 @@ module.exports = function(router) {
                                 invite.create(async function (err, result) {
                                     if (!err) {
                                         let apiUrl = req.protocol + '://' + req.get('host') + "/api/v1/participant/" + campObj.data.name +"?token=" + result.get("token");
-                                        let frontEndUrl = req.protocol + '://' + req.get('host') + joinName + "/invitation/" + result.get("token");
+                                        let frontEndUrl = process.env.FRONTEND_URL + "/" + joinName + "/invitation/" + result.get("token");
                                         //EventLogs.logEvent(req.user.get('id'), `participants ${req.body.email} was invited by user ${req.user.get('email')}`);
                                         res.locals.json = {token: result.get("token"), url: frontEndUrl, api: apiUrl};
                                         newParticipant.set('url', frontEndUrl);
@@ -199,8 +199,25 @@ module.exports = function(router) {
 
     router.get('/participant/suspend/:id', auth(), validate(Participant), function(req,res){
         let participant = res.locals.valid_object;
-        participant.suspend(function(result){
+        participant.suspend(async function(result){
             res.json(result);
+            await notification("participant_suspended", result.data.campaign_id, result, result);
+        });
+    });
+
+    router.get('/participant/approve/:id', auth(), validate(Participant), function(req,res){
+        let participant = res.locals.valid_object;
+        participant.approve(async function(result){
+            res.json(result);
+            await notification("participant_approved", result.data.campaign_id, result, result);
+        });
+    });
+
+    router.get('/participant/disapprove/:id', auth(), validate(Participant), function(req,res){
+        let participant = res.locals.valid_object;
+        participant.disapprove(async function(result){
+            res.json(result);
+            await notification("participant_account_declined", result.data.campaign_id, result, result);
         });
     });
 
