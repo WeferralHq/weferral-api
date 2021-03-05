@@ -7,9 +7,9 @@
 ## Description
   A RESTFUL API built for Weferral
 
-## Get Started
-
-### Author 
-** Ezeh Uche <ezeokeke.remigius@gmail.com>**
+### Author
+Ezeokeke Uche 
+* Email: <ezeokeke.remigius@gmail.com>
 
 * Github: [@ezehuche](https://github.com/ezehuche)
+* Twitter: [@Ezeokekeuche](https://twitter.com/Ezeokekeuche)

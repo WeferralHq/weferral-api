@@ -35,7 +35,7 @@ module.exports = function(router) {
                     res.locals.valid_object = result;
                     next();
                     await notification("participant_invited", campObj.data.id, participant, participant);
-                    //dispatchEvent("user_invited", participant);
+                    await webhook('participant_invited', participant);
                 } else {
                     res.status(403).json({error: err});
                 }
@@ -83,7 +83,7 @@ module.exports = function(router) {
                                         res.locals.valid_object = result;
                                         next();
                                         await notification("participant_invited", campObj.data.id, newParticipant, newParticipant);
-                                        //dispatchEvent("participant_invited", newParticipant);
+                                        await webhook('participant_invited', participant);
                                     } else {
                                         res.status(403).json({error: err});
                                     }
@@ -202,6 +202,7 @@ module.exports = function(router) {
         participant.suspend(async function(result){
             res.json(result);
             await notification("participant_suspended", result.data.campaign_id, result, result);
+            await webhook('participant_suspended', result);
         });
     });
 
@@ -210,6 +211,7 @@ module.exports = function(router) {
         participant.approve(async function(result){
             res.json(result);
             await notification("participant_approved", result.data.campaign_id, result, result);
+            await webhook('participant_approved', result);
         });
     });
 
@@ -218,6 +220,7 @@ module.exports = function(router) {
         participant.disapprove(async function(result){
             res.json(result);
             await notification("participant_account_declined", result.data.campaign_id, result, result);
+            await webhook('participant_account_declined', result);
         });
     });
 
