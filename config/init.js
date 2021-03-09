@@ -6,6 +6,7 @@ var SystemOption = require("../models/system-options");
 let options = require("./system-options");
 let User = require("../models/user");
 let migrate = require("./migrations/migrate");
+let swaggerJSON = require("../api-docs/api-paths.json");
 //DO NOT MODIFY THE CORE SCHEMA!
 //If you do, make sure you know exactly what you are doing!
 
@@ -63,11 +64,12 @@ let assignPermissionPromise = function (initConfig, permission_objects, initialR
 
 //Creating initial user tables:
 module.exports = function (initConfig) {
-    return knex("pg_catalog.pg_tables").select("tablename").where("schemaname", "public").then(function (exists) {
+    return knex("pg_catalog.pg_tables").select("tablename").where("schemaname", "public").then(async function (exists) {
         //knex.schema.hasTable('user_card').then(function(exists){
         //If the tables specified dont exist:
         if (exists.length == 0) {
             console.log("User tables don't exist - Creating tables...");
+            await knex.raw('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
             return knex.schema.createTable('user_roles', function (table) {
                 table.increments();
                 table.string('role_name').unique();
@@ -90,6 +92,7 @@ module.exports = function (initConfig) {
             }).createTable('users', function (table) {
                 table.increments();
                 table.integer('role_id').references('user_roles.id');
+                table.uuid('account_id').defaultTo(knex.raw('uuid_generate_v4()'));
                 table.string('name');
                 table.string('email').notNullable().unique();
                 table.string('password');
@@ -99,22 +102,58 @@ module.exports = function (initConfig) {
                 table.timestamps(true, true);
                 console.log("Created 'users' table.");
 
-            }).createTable('products', function (table) {
+            }).createTable('campaign_categories', function (table) {
                 table.increments();
-                table.integer('user_id').references('users.id').onDelete('cascade');
                 table.string('name');
                 table.string('description');
-                table.string('image_url');
-                table.string('product_url');
-                table.text('details', 'longtext');
-                table.bigInteger('price');
-                table.string('currency').defaultTo('usd');
-                console.log("Created 'products' table.");
+                table.timestamps(true, true);
+                console.log("Created 'campaign_categories' table.");
+            }).createTable('campaigns', function (table) {
+                table.increments();
+                table.integer('user_id').references('users.id').onDelete('cascade');
+                table.integer('category_id').references('campaign_categories.id');
+                table.string('name');
+                table.string('description');
+                table.enu('reward_type', ['cash_reward', 'discount', 'discount_coupon', 'points','free_subscription']).defaultTo('cash_reward');
+                table.enu('commission_type', ['fixed', 'percentage_sale']).defaultTo('fixed');
+                //table.enu('reward', ['reward_percentage', 'reward_amount']);
+                table.string('reward');
+                table.boolean('private_campaign');
+                table.bigInteger('reward_price');
+                table.boolean('auto_approve').defaultTo(true);
+                table.integer('cookie_life');
+                table.boolean('published').defaultTo(false);
+                table.enu('payout_terms', ['NET30', 'NET15','NET20']).defaultTo('NET30');
+                table.bigInteger('minimum_cash_payout');
+                table.integer('trial_period_days');
+                table.boolean('enable_recurring').defaultTo(false);
+                table.integer('recurring_limit');
+                table.timestamps(true, true);
+                console.log("Created 'campaigns' table.");
+
+            }).createTable('participants', function (table) {
+                table.increments();
+                table.integer('created_by').references('users.id');
+                table.integer('approved_by').references('users.id');
+                table.integer('campaign_id').references('campaigns.id');
+                table.string('name');
+                table.string('fname');
+                table.string('lname');
+                table.jsonb('metadata');
+                table.string('email').notNullable().unique();
+                table.string('referral_code').notNullable().unique();
+                table.string('password');
+                table.enu('status', ['active', 'inactive', 'suspended', 'invited', 'disconnected']).defaultTo('active');
+                table.bigInteger('awaiting_payout');
+                table.bigInteger('total_payout');
+                table.timestamps(true, true);
+                console.log("Created 'services_templates' table.");
 
             }).createTable('invitations', function (table) {
                 table.increments();
                 table.string('token');
                 table.integer('user_id').references('users.id').onDelete('cascade');
+                table.integer('participant_id').references('participants.id');
                 table.timestamps(true, true);
                 console.log("Created 'invitations' table.");
 
@@ -136,33 +175,9 @@ module.exports = function (initConfig) {
                 table.timestamps(true, true);
                 console.log("Created 'event_logs' table.");
 
-            }).createTable('campaign_categories', function (table) {
-                table.increments();
-                table.string('name');
-                table.string('description');
-                table.timestamps(true, true);
-                console.log("Created 'campaign_categories' table.");
-            }).createTable('campaigns', function (table) {
-                table.increments();
-                table.integer('user_id').references('users.id').onDelete('cascade');
-                table.integer('product_id').references('products.id');
-                table.integer('category_id').references('campaign_categories.id');
-                table.string('name');
-                table.string('description');
-                table.enu('reward_type', ['cash_reward', 'discount', 'discount_coupon', 'points','free_subscription']).defaultTo('cash_reward');
-                table.enu('commission_type', ['fixed', 'percentage_sale']).defaultTo('fixed');
-                //table.enu('reward', ['reward_percentage', 'reward_amount']);
-                table.bigInteger('reward_price');
-                table.boolean('auto_approve').defaultTo(true);
-                table.integer('cookie_life');
-                table.boolean('published').defaultTo(false);
-                table.enu('payout_terms', ['NET30', 'NET15','NET20']).defaultTo('NET30');
-                table.bigInteger('minimum_cash_payout');
-                table.timestamps(true, true);
-                console.log("Created 'campaigns' table.");
-
             }).createTable('notification_templates', function (table) {
                 table.increments();
+                table.integer('campaign_id').references('campaigns.id');
                 table.string('name');
                 table.string('event_name');
                 table.text('message', 'longtext');
@@ -184,6 +199,7 @@ module.exports = function (initConfig) {
 
             }).createTable('notifications', function (table) {
                 table.increments();
+                table.integer('participant_id').references('participants.id').onDelete('cascade');
                 table.string("source_id").unique();
                 table.text('message', 'longtext');
                 table.string("type");
@@ -193,26 +209,17 @@ module.exports = function (initConfig) {
                 table.timestamp('created_at').defaultTo(knex.fn.now());
                 console.log("created notifications table");
 
-            }).createTable('participants', function (table) {
-                table.increments();
-                table.integer('created_by').references('users.id');
-                table.integer('approved_by').references('users.id');
-                table.string('name');
-                table.string('email').notNullable().unique();
-                table.string('referral_code').notNullable().unique();
-                table.string('password');
-                table.enu('status', ['active', 'inactive', 'suspended', 'invited', 'disconnected']).defaultTo('active');
-                table.bigInteger('awaiting_payout');
-                table.bigInteger('total_payout');
-                table.timestamps(true, true);
-                console.log("Created 'services_templates' table.");
-
             }).createTable('customers', function (table) {
                 table.increments();
                 table.integer('participant_id').references('participants.id');
                 table.integer('campaign_id').references('campaigns.id');
                 table.boolean('underReview').defaultTo(false);
                 table.jsonb('metadata');
+                table.string('customer_id').unique();
+                table.string('ip');
+                table.string('email');
+                table.string('name');
+                table.timestamp('last_login');
                 table.timestamps(true, true);
                 console.log("Created 'customers' table.");
 
@@ -223,6 +230,13 @@ module.exports = function (initConfig) {
                 table.integer('customer_id').references('customers.id');
                 table.jsonb('metadata');
                 table.bigInteger('earnings');
+                table.integer('conversion_id').references('conversions.id');
+                table.bigInteger('conversion_amount');
+                table.bigInteger('amount');
+                table.string('commission_type');
+                table.string('currency').defaultTo('usd');
+                table.boolean('payout').defaultTo(false);
+                table.enu('status', ['pending', 'approved', 'rejected']).defaultTo('pending');
                 table.timestamps(true, true);
                 console.log("Created 'commissions' table.");
 
@@ -233,6 +247,10 @@ module.exports = function (initConfig) {
                 table.integer('customer_id').references('customers.id');
                 table.jsonb('metadata');
                 table.string('url');
+                table.string('location');
+                table.string('ip');
+                table.boolean('fraud');
+                table.string('fraud_message');
                 table.timestamps(true, true);
                 console.log("Created 'clicks' table.");
 
@@ -252,6 +270,11 @@ module.exports = function (initConfig) {
                 table.integer('campaign_id').references('campaigns.id');
                 table.string('shortned_url');
                 table.string('original_url');
+                table.integer('fb_shares');
+                table.integer('twitter_shares');
+                table.integer('email_shares');
+                table.integer('linkedin_shares');
+                table.integer('whatsapp_shares');
                 table.timestamps(true, true);
                 console.log("Created 'urls' table.");
 
@@ -312,9 +335,85 @@ module.exports = function (initConfig) {
             }).createTable('password_reset_request', function (table) {
                 table.increments();
                 table.integer('user_id').references('users.id').onDelete('cascade');
+                table.integer('participant_id').references('participants.id').onDelete('cascade');
                 table.string('hash');
                 table.timestamps(true, true);
                 console.log("Created 'password_reset_request' table.");
+            }).createTable('campaign_properties', function (table) {
+                table.inherits('properties');
+                table.increments();
+                table.integer('parent_id').references('campaigns.id').onDelete('cascade');
+                table.boolean('private').defaultTo(false);
+                table.boolean('prompt_user').defaultTo(true);
+                table.boolean('required').defaultTo(false);
+                table.string('prop_input_type');
+                table.specificType('prop_values', 'text[]');
+                table.string('option');
+                table.string('value');
+                table.string('data_type');
+                table.timestamps(true, true);
+            }).createTable('conversions', function (table) {
+                table.increments();
+                table.integer('campaign_id').references('campaigns.id');
+                table.integer('participant_id').references('participants.id');
+                table.integer('customer_id').references('customers.id');
+                table.string('order_id');
+                table.string('affiliation');
+                table.bigInteger('amount');
+                table.jsonb('metadata');
+                table.string('coupon');
+                table.string('currency');
+                table.timestamps(true, true);
+            }).createTable('rewards', function (table) {
+                table.increments();
+                table.integer('campaign_id').references('campaigns.id');
+                table.integer('participant_id').references('participants.id');
+                table.integer('conversion_id').references('conversions.id');
+                table.string('type');
+                table.string('affiliation');
+                table.date('dateGiven');
+                table.date('dateExpires');
+                table.date('dateCancelled');
+                table.date('dateScheduledFor');
+                table.boolean('cancellable');
+                table.enu('source', ['referred', 'manual']).defaultTo('referred');
+                table.string('unit');
+                table.string('name');
+                table.bigInteger('assignedCredit');
+                table.bigInteger('redeemedCredit');
+                table.string('currency');
+                table.timestamps(true, true);
+            }).createTable('redemptions', function (table) {
+                table.increments();
+                table.integer('reward_id').references('rewards.id');
+                table.date('dateRedeemed');
+                table.bigInteger('quantityRedeemed');
+                table.timestamps(true, true);
+            }).createTable('webhooks', function (table) {
+                table.increments();
+                table.integer('campaign_id').references('campaigns.id');
+                table.string('endpoint_url').unique().notNullable();
+                table.string("health");
+                table.boolean("async_lifecycle").notNullable().defaultTo(true);
+                table.timestamps(true, true);
+            }).createTable('campaign_system_options', function (table) {
+                table.increments();
+                table.integer('campaign_id').references('campaigns.id');
+                table.string('option');
+                table.string('value');
+                table.boolean("public").defaultTo(false);
+                table.string('type');
+                table.string('data_type');
+                table.timestamps(true, true);
+                console.log("Created 'campaign_system_options' table.");
+            }).createTable('files', function (table) {
+                table.increments();
+                table.integer('campaign_id').references('campaigns.id').onDelete('cascade');
+                table.string('url');
+                table.integer('public_id');
+                table.string('name');
+                table.timestamps(true, true);
+                console.log("Created 'files' table.");
                 console.log("***** All Tables successfully created *****");
             });
         }
@@ -346,10 +445,10 @@ module.exports = function (initConfig) {
                             initialRoleMap.staff.push(swaggerJSON[route][method].operationId);
                         }
                         if (swaggerJSON[route][method]['x-roles'].includes("developer")) {
-                            initialRoleMap.user.push(swaggerJSON[route][method].operationId);
+                            initialRoleMap.developer.push(swaggerJSON[route][method].operationId);
                         }
-                        if (swaggerJSON[route][method]['x-roles'].includes("user")) {
-                            initialRoleMap.user.push(swaggerJSON[route][method].operationId);
+                        if (swaggerJSON[route][method]['x-roles'].includes("developer")) {
+                            initialRoleMap.developer.push(swaggerJSON[route][method].operationId);
                         }
                         permissions.push(swaggerJSON[route][method].operationId);
                     }
