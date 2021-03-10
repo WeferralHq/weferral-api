@@ -12,14 +12,14 @@ module.exports = function(router) {
         }
     });
 
-    router.get('/campaigns', auth(), function (req, res, next) {
+    /*router.get('/campaigns', auth(), function (req, res, next) {
         Campaign.findAll(true, true, (campaigns) => {
             if (campaigns && campaigns.length > 0) {
                 let camps = (campaigns.map(entity => entity.data));
                 return res.status(200).json(camps);
             }
         });
-    });
+    });*/
 
     router.get("/campaign/:id(\\d+)", auth(), validate(Campaign), function (req, res, next) {
         let campaign = res.locals.valid_object;

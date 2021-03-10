@@ -101,18 +101,6 @@ module.exports = function(router) {
         }
     });
 
-
-    router.get('/participants', function(req,res){
-        if (req.isAuthenticated()) {
-            Participant.findAll(true, true, (results) => {
-                if (results && results.length > 0) {
-                    let participants = (results.map(entity => entity.data));
-                    res.status(200).json(participants);
-                }
-            });
-        }
-    });
-
     router.get('/participant/commissions/:id', validate(Participant), function(req, res) {
         let participant = res.locals.valid_object;
         Commission.findAll('participant_id', participant.data.id, function(commissions){
