@@ -12,6 +12,13 @@ let NotificationTemplate = require('./notification-template');
 
 let createCampaign = function (options, callback) {
     let self = this;
+    let recurring_endDt = 0;
+    let tday = new Date();
+    if(self.date.recurring_limit > 0){
+        recurring_endDt = new Date(tday * 1000);
+        recurring_endDt.setDate(recurring_endDt.getMonth() + self.date.recurring_limit);
+        self.data.recurring_end_date = recurring_endDt;
+    }
     
     //Use the Entity create to create the campaign
     self.create(async function (err, created_campaign) {

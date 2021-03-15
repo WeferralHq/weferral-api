@@ -128,6 +128,7 @@ module.exports = function (initConfig) {
                 table.integer('trial_period_days');
                 table.boolean('enable_recurring').defaultTo(false);
                 table.integer('recurring_limit');
+                table.bigInteger('recurring_end_date');
                 table.timestamps(true, true);
                 console.log("Created 'campaigns' table.");
 
