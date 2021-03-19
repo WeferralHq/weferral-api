@@ -411,7 +411,8 @@ module.exports = function (initConfig) {
                 table.increments();
                 table.integer('campaign_id').references('campaigns.id').onDelete('cascade');
                 table.string('url');
-                table.integer('public_id');
+                table.string('public_id');
+                table.string('file_name');
                 table.string('name');
                 table.timestamps(true, true);
                 console.log("Created 'files' table.");

@@ -9,17 +9,18 @@ let auth = require("./middlewares/auth");
 let User = require("../models/user");
 //let systemFilePath = "uploads/system-options";
 
-let systemFiles = ['front_page_image', 'brand_logo'];
+let systemFiles = ['front_page_image', 'brand_logo', 'asset'];
 
 module.exports = function(router) {
 
-    router.post('/system-options/file/:id', auth(), upload.single('file'), function (req, res, next){
+    router.post('/system-options/file/:id/:campaign_id', auth(), upload.single('file'), function (req, res, next){
         if (systemFiles.indexOf(req.params.id) > -1) {
-            let campaign_id = req.params.id;
+            let campaign_id = req.params.campaign_id;
             cloudinary.uploader.upload(req.file.path).then((result) => {
                 let newFile = new File({
                     'campaign_id': campaign_id,
-                    'name': req.body.name,
+                    'name': req.params.id,
+                    'file_name': req.file.originalname,
                     'url': result.secure_url,
                     'public_id': result.public_id
                 })
@@ -33,19 +34,12 @@ module.exports = function(router) {
         }
     });
 
-    router.get('/system-options/file/:id', auth(), function (req, res, next){
+    router.get('/system-options/file/:id/:campaign_id', auth(),async function (req, res, next){
+        let campaign_id = req.params.campaign_id;
         if (systemFiles.indexOf(req.params.id) > -1) {
-            File.findOne('name', req.params.id, function (image) {
-                if (image.data) {
-                    let fileUrl = image.data.url;
-                    let options = {
-                        headers: {
-                            'Content-Disposition': "inline; filename=" + file.get("name")
-                        }
-                    };
-
-                    res.sendFile(fileUrl, options);
-                } else {
+            let image = (await File.find({'name': req.params.id, 'campaign_id': campaign_id}))[0];
+            //File.findOne('name', req.params.id, function (image) {
+                if(image === undefined){
                     //todo: make less hardcoded.. maybe seperate api calls again
                     if(req.params.id == "brand_logo"){
                         return res.sendFile(path.resolve(__dirname, "../images/weferral.svg"));
@@ -53,8 +47,17 @@ module.exports = function(router) {
                     else {
                         res.status("400").send("no image");
                     }
+                } else {
+                    let fileUrl = image.data.url;
+                    let options = {
+                        headers: {
+                            'Content-Disposition': "inline; filename=" + image.get("name")
+                        }
+                    };
+
+                    res.sendFile(fileUrl, options);
                 }
-            });
+            //});
         }
         else {
             res.status("400").send("not a valid system file option");
