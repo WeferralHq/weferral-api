@@ -14,9 +14,10 @@ let createCampaign = function (options, callback) {
     let self = this;
     let recurring_endDt = 0;
     let tday = new Date();
-    if(self.date.recurring_limit > 0){
+    let recurring_limit = parseInt(self.data.recurring_limit);
+    if(recurring_limit > 0){
         recurring_endDt = new Date(tday * 1000);
-        recurring_endDt.setDate(recurring_endDt.getMonth() + self.date.recurring_limit);
+        recurring_endDt.setMonth(recurring_endDt.getMonth() + recurring_limit);
         self.data.recurring_end_date = recurring_endDt;
     }
     

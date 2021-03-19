@@ -1,7 +1,7 @@
 module.exports = {
     up : async function(knex){
         await knex.schema.alterTable("campaigns", table => {
-            table.bigInteger('recurring_end_date');
+            table.string('recurring_end_date');
             console.log("Updated 'campaigns' table.");
         });
 

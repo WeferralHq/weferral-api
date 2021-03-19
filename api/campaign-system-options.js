@@ -48,7 +48,7 @@ module.exports = function(router) {
                 } else {
                     //todo: make less hardcoded.. maybe seperate api calls again
                     if(req.params.id == "brand_logo"){
-                        return res.sendFile(path.resolve(__dirname, "../public/assets/weferral.svg"));
+                        return res.sendFile(path.resolve(__dirname, "../images/weferral.svg"));
                     }
                     else {
                         res.status("400").send("no image");
