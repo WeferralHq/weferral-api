@@ -25,9 +25,9 @@ module.exports = function(router) {
                     'public_id': result.public_id
                 })
 
-                newFile.create(function (created_file) {
-                    if (created_file.data) {
-                        res.json(created_file.map(entity => entity.data));
+                newFile.create(function (err, result) {
+                    if (!err) {
+                        res.send({'logo': result.data.url});
                     }
                 })
             })
@@ -49,13 +49,13 @@ module.exports = function(router) {
                     }
                 } else {
                     let fileUrl = image.data.url;
-                    let options = {
+                    /*let options = {
                         headers: {
                             'Content-Disposition': "inline; filename=" + image.get("name")
                         }
-                    };
+                    };*/
 
-                    res.sendFile(fileUrl, options);
+                    res.send({'logo': fileUrl});
                 }
             //});
         }
@@ -87,7 +87,7 @@ module.exports = function(router) {
         });
     });
 
-    router.get('/system-setting/:campaignName', function (req, res, next) {
+    router.get('/system-setting/:campaignName', async function (req, res, next) {
         let campaignName = req.params.campaignName.replace(/-/g, ' ');
         let campaignId = 0;
         Campaign.findOne("name", campaignName, function (campaigns) {
@@ -101,9 +101,24 @@ module.exports = function(router) {
                     }, {}));
                 });
             }
-        });
+        }); 
+    });
 
-        
+    router.get('/system-setting/brand_logo/:campaignName', async function (req, res, next) {
+        let campaignName = req.params.campaignName.replace(/-/g, ' ');
+        let campaignId = 0;
+        Campaign.findOne("name", campaignName, function (campaigns) {
+            if (campaigns.data) {
+                campaignId = campaigns.data.id;
+
+                File.findOne("campaign_id", campaignId, function (results) {
+                    if(results.data){
+                        let fileUrl = results.data.url;
+                        res.send({'brand_logo': fileUrl});
+                    }
+                });
+            }
+        });
     })
 
     router.put('/system-settings/:campaignId', auth(), function (req, res, next) {
