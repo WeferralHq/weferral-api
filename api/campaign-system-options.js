@@ -9,7 +9,7 @@ let auth = require("./middlewares/auth");
 let User = require("../models/user");
 //let systemFilePath = "uploads/system-options";
 
-let systemFiles = ['front_page_image', 'brand_logo', 'asset'];
+let systemFiles = ['front_page_image', 'brand_logo', 'brand_assets'];
 
 module.exports = function(router) {
 
@@ -37,26 +37,22 @@ module.exports = function(router) {
     router.get('/system-options/file/:id/:campaign_id', auth(),async function (req, res, next){
         let campaign_id = req.params.campaign_id;
         if (systemFiles.indexOf(req.params.id) > -1) {
-            let image = (await File.find({'name': req.params.id, 'campaign_id': campaign_id}))[0];
+            if(req.params.id == "brand_logo"){
+                let image = (await File.find({'name': req.params.id, 'campaign_id': campaign_id}))[0];
             //File.findOne('name', req.params.id, function (image) {
                 if(image === undefined){
                     //todo: make less hardcoded.. maybe seperate api calls again
-                    if(req.params.id == "brand_logo"){
-                        return res.sendFile(path.resolve(__dirname, "../images/weferral.svg"));
-                    }
-                    else {
-                        res.status("400").send("no image");
-                    }
+                    return res.send({'logo': path.join(__dirname, "../public/assets/weferral.svg")});
                 } else {
                     let fileUrl = image.data.url;
-                    /*let options = {
-                        headers: {
-                            'Content-Disposition': "inline; filename=" + image.get("name")
-                        }
-                    };*/
-
                     res.send({'logo': fileUrl});
                 }
+            }else if(req.params.id == "brand_assets"){
+                let assets = (await File.find({'name': req.params.id, 'campaign_id': campaign_id}));
+                let brand_assets = (assets.map(entity => entity.data));
+                res.json(brand_assets);
+            }
+            
             //});
         }
         else {
@@ -106,10 +102,9 @@ module.exports = function(router) {
 
     router.get('/system-setting/brand_logo/:campaignName', async function (req, res, next) {
         let campaignName = req.params.campaignName.replace(/-/g, ' ');
-        let campaignId = 0;
         Campaign.findOne("name", campaignName, function (campaigns) {
             if (campaigns.data) {
-                campaignId = campaigns.data.id;
+                let campaignId = campaigns.data.id;
 
                 File.findOne("campaign_id", campaignId, function (results) {
                     if(results.data){
