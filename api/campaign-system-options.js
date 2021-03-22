@@ -1,5 +1,6 @@
 let CampaignSystemOption = require('../models/campaign-sys-option');
 let Campaign = require("../models/campaign");
+let Participant = require("../models/participant");
 let cloudinary = require('../config/cloudinary');
 let File = require('../models/file');
 let path = require("path");
@@ -7,6 +8,7 @@ let multer = require("multer");
 let upload = multer({dest: 'images/'});
 let auth = require("./middlewares/auth");
 let User = require("../models/user");
+let validate = require("./middlewares/validate");
 //let systemFilePath = "uploads/system-options";
 
 let systemFiles = ['front_page_image', 'brand_logo', 'brand_assets'];
@@ -60,6 +62,16 @@ module.exports = function(router) {
         }
     });
 
+    router.get('/system-options/participant/file/brand_assets/:id', validate(Participant), auth(), function (req, res, next) {
+        let participant_id = req.params.pid;
+        let brand = 'brand_assets'
+        Participant.findById(participant_id, async function (result) {
+            let assets = (await File.find({ 'name': brand, 'campaign_id': result.data.campaign_id }));
+            let brand_assets = (assets.map(entity => entity.data));
+            res.json(brand_assets);
+        })
+    });
+
     router.get('/secret-key', auth(), async function(req, res, next){
         let secretKey = process.env.SECRET_KEY;
         let user = (await User.find({'id': req.user.data.id}))[0];
@@ -70,6 +82,20 @@ module.exports = function(router) {
         let campaign_id = req.params.id;
         File.findAll("campaign_id", campaign_id, function (results) {
             res.json(results.map(entity => entity.data));
+        })
+    })
+
+    router.delete('/system-options/file/:id', auth(), validate(File), function (req, res, next){
+        let file = res.locals.valid_object;
+        file.delete(function (err, result) {
+            if(err){
+                console.error("Server error deleting entity: " + err);
+                res.status(500).send({ error: "Error deleting" })
+            }
+            else {
+                //store.dispatchEvent(`${model.table}_deleted`, entity);
+                res.json({message: `File with id ${req.params.id} deleted`});
+            }
         })
     })
 

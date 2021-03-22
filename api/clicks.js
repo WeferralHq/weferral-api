@@ -1,4 +1,4 @@
-let Click = require('../models/click');
+let Click = require('../models/clicks');
 let Customer = require('../models/customer');
 let Campaign = require('../models/campaign');
 let Participant = require('../models/participant');

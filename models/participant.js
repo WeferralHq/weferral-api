@@ -5,7 +5,7 @@ let references = [
 let Participant = require('./base/entity')("participants", references);
 let Conversion = require('./conversion');
 let Customers = require('./customer');
-let Clicks = require('./click');
+let Click = require('./clicks');
 let Reward = require('./reward');
 
 let randomStr = function (len, str){
@@ -37,7 +37,7 @@ Participant.prototype.participantStats = async function (){
     stats.totalsignups = stats.totalcustomers = stats.totalclicks = stats.awaitingpayout = 0;
     let conversions = (await Conversion.find({"participant_id": part_id}))[0];
     let customers = (await Customers.find({"participant_id": part_id}))[0];
-    let clicks = (await Clicks.find({"participant_id": part_id}))[0];
+    let clicks = (await Click.find({"participant_id": part_id}))[0];
     let rewards = (await Reward.find({"participant_id": part_id}))[0];
     if(conversions !== undefined){ stats.totalsignups = conversions.length }
     if(customers !== undefined){ stats.totalcustomers = customers.length }

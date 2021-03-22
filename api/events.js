@@ -1,4 +1,4 @@
-let Click = require('../models/click');
+let Click = require('../models/clicks');
 let Customer = require('../models/customer');
 let Campaign = require('../models/campaign');
 let Participant = require('../models/participant');
@@ -8,6 +8,14 @@ let campaignCron = require('../config/campaign-cron');
 let verifyAuth = require('./middlewares/verifyAuth');
 let webhook = require('../lib/webhook');
 let notification = require('../lib/notification');
+let geoip = require('geoip-lite');
+
+let getLocationMetadata = function (ip){
+    let onlyNumberAndDots = /[\d.]+$/
+    let ipMetadata = geoip.lookup(ip.match(onlyNumberAndDots)[0])
+    console.log(ipMetadata)
+    return ipMetadata
+}
 
 /*let getUniqueCustId = function(){
     let random_code = Math.random().toString(36).substring(10, 12) + Math.random().toString(36).substring(10, 12);
@@ -36,6 +44,7 @@ module.exports = function(router) {
                     });
                     newClick.set('ip', req.connection.remoteAddress);
                     newClick.set('customer_id', result.data.id);
+                    newClick.set('location', getLocationMetadata(req.connection.remoteAddress));
                     newClick.createClick(function (err, result) {
                         Campaign.findById(campaign_id, function (campaign) {
                             if (!campaign.data) {
