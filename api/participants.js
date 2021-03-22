@@ -13,6 +13,7 @@ let async = require("async");
 let Commission = require("../models/commission");
 let Reward = require('../models/reward');
 let auth = require('./middlewares/auth');
+let ptAnalytics = require("../lib/ptAnalytics");
 
 module.exports = function(router) {
 
@@ -215,7 +216,7 @@ module.exports = function(router) {
     router.get('/participant/profile/:id', validate(Participant), auth(), async function(req,res){
         let Obj = res.locals.valid_object;
         let url = (await Url.find({'campaign_id': Obj.data.campaign_id}))[0];
-        let stats = await Obj.participantStats();
+        let stats = await ptAnalytics.getPtAnalyticsData(Obj);
         Obj.data.url = url.data.original_url;
         let newObj = Object.assign(Obj.data, stats);
         res.json(newObj);

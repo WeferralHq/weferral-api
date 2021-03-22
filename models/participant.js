@@ -3,10 +3,6 @@ let references = [
     {"model": Campaign, "referenceField": "campaign_id", "direction": "to", "readOnly": true}
 ];
 let Participant = require('./base/entity')("participants", references);
-let Conversion = require('./conversion');
-let Customers = require('./customer');
-let Click = require('./clicks');
-let Reward = require('./reward');
 
 let randomStr = function (len, str){
     let ans = '';
@@ -29,26 +25,6 @@ Participant.prototype.createParticipant = function (callback){
         callback(err, created_participant);
     });
 };
-
-Participant.prototype.participantStats = async function (){
-    let self = this;
-    let stats = {};
-    let part_id = self.data.id;
-    stats.totalsignups = stats.totalcustomers = stats.totalclicks = stats.awaitingpayout = 0;
-    let conversions = (await Conversion.find({"participant_id": part_id}))[0];
-    let customers = (await Customers.find({"participant_id": part_id}))[0];
-    let clicks = (await Click.find({"participant_id": part_id}))[0];
-    let rewards = (await Reward.find({"participant_id": part_id}))[0];
-    if(conversions !== undefined){ stats.totalsignups = conversions.length }
-    if(customers !== undefined){ stats.totalcustomers = customers.length }
-    if(clicks !== undefined){ stats.totalclicks = clicks.length }
-    if(rewards !== undefined){
-        rewards.map(reward => {
-            stats.awaitingpayout += reward.data.assignedCredit;
-        })
-    }
-    return stats;
-}
 
 Participant.prototype.deleteParticipant = function (callback) {
     let self = this;
