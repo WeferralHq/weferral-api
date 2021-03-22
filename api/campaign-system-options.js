@@ -62,14 +62,12 @@ module.exports = function(router) {
         }
     });
 
-    router.get('/system-options/participant/file/brand_assets/:id', validate(Participant), auth(), function (req, res, next) {
-        let participant_id = req.params.pid;
+    router.get('/system-options/participant/file/brand_assets/:id', validate(Participant), auth(),async function (req, res, next) {
+        let participant = res.locals.valid_object;
         let brand = 'brand_assets'
-        Participant.findById(participant_id, async function (result) {
-            let assets = (await File.find({ 'name': brand, 'campaign_id': result.data.campaign_id }));
-            let brand_assets = (assets.map(entity => entity.data));
-            res.json(brand_assets);
-        })
+        let assets = (await File.find({ 'name': brand, 'campaign_id': participant.data.campaign_id }));
+        let brand_assets = (assets.map(entity => entity.data));
+        res.json(brand_assets);
     });
 
     router.get('/secret-key', auth(), async function(req, res, next){
