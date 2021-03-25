@@ -10,7 +10,7 @@ let Customer = require("./base/entity")("customers", references);
 
 let createCustomer = function (options, callback) {
     let self = this;
-    Customer.findAll('unique_id', self.data.unique_id, function(result) {
+    Customer.findAll('customer_id', self.data.customer_id, function(result) {
         if(result.data){
             callback(result);
         }else {

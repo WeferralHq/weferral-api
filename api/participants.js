@@ -362,7 +362,7 @@ module.exports = function(router) {
                         newParticipant.set('password', password);
                         Object.keys(req.body).forEach((key, index) => {
                             if (columnName.indexOf(key) < 0) {
-                                metaArr.push(`${key}: ${req.body[key]}`);
+                                metaArr.push(`${[key]}: ${req.body[key]}`);
                             }
                         });
                         let metadata = Object.assign({}, metaArr);
