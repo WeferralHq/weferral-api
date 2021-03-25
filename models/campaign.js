@@ -15,10 +15,14 @@ let createCampaign = function (options, callback) {
     let recurring_endDt = 0;
     let tday = new Date();
     let recurring_limit = parseInt(self.data.recurring_limit);
+    if(self.data.reward_type === 'cash_reward'){
+        self.data.reward_price = self.data.reward.replace(/[^0-9]/g,"")
+    }
     if(recurring_limit > 0){
         recurring_endDt = new Date(tday * 1000);
         recurring_endDt.setMonth(recurring_endDt.getMonth() + recurring_limit);
         self.data.recurring_end_date = recurring_endDt;
+        self.data.enable_recurring = true;
     }
     
     //Use the Entity create to create the campaign

@@ -61,36 +61,20 @@ module.exports = function(app) {
         let referral_code = req.params.referral_code;
         let uniqueId = req.body.customer_id;
         let customer = (await Customer.find({"customer_id": uniqueId}))[0];
+        if(!customer){
+            return res.json({'message': 'Use the customer event to create the customer, before applying the customer to conversion event'})
+        }
         Participant.findOne('referral_code', referral_code, function (rows){
             Campaign.findById(rows.data.campaign_id, function(campaign){
-                let cust = function(){
-                    let id = 0;
-                    if(!customer){
-                        let newCust = new Customer({
-                            'customer_id': uniqueId,
-                            'campaign_id': campaign.data.id,
-                            'participant_id': rows.data.id,
-                            'ip': req.connection.remoteAddress
-                        });
-                        newCust.createCustomer(async function (err, result) {
-                            if (!err) {
-                                id = result.data.id;
-                            }
-                        })
-                    }else{
-                        id = customer.data.id;
-                    }
-                    return id;
-                }
                 let rewardType = campaign.data.reward_type;
                 let commissionType = campaign.data.commission_type;
                 let newCommission = new Commission({
                     'campaign_id': campaign.data.id,
                     'participant_id': rows.data.id,
-                    'customer_id': cust,
+                    'customer_id': customer.data.id,
                     'commission_type': commissionType, 
                     'currency': campaign.data.currency,
-                    'conversion_amount': req.body.amount
+                    'conversion_amount': req.body.amount || 0
                 });
                 let rewardPrice = campaign.data.reward_price;
                 if(campaign.data.enable_recurring){
