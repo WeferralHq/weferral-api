@@ -8,6 +8,7 @@ let Campaign = require('./base/entity')("campaigns", references);
 let default_notifications = require('../config/default-notifications');
 let create_systemOptions = require('../config/campaign-sys-options');
 let NotificationTemplate = require('./notification-template');
+let CampaignSystemOption = require("./campaign-sys-option");
 //let async = require("async");
 
 let createCampaign = function (options, callback) {
@@ -75,6 +76,20 @@ Campaign.prototype.deleteCampaign = function (callback) {
                 });
             });
         })
+    }).then(function(){
+        return new Promise(function (resolve, reject) {
+            CampaignSystemOption.findAll("campaign_id", self.data.id, function(options) {
+                options.map(function (option){
+                    option.delete(function (err, result) {
+                        if(!err) {
+                            return resolve(result);
+                        } else {
+                            return reject(err);
+                        }
+                    });
+                });
+            })
+        });
     }).then(function(){
         return new Promise(function (resolve, reject) {
             Url.findAll("campaign_id", self.data.id, function(urls) {
