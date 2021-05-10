@@ -70,7 +70,7 @@
         "factory-girl": "^5.0.4",
         "chance": "^1.0.6",
         "nodemon": "^1.19.1",
-        "prettier": "^1.15.3"
+        "prettier": "^2.3.0"
     },
     "prettier": {
         "singleQuote": true,
