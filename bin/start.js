@@ -8,13 +8,6 @@ let fs = require("fs");
 let path =require("path");
 let enableDestroy = require('server-destroy');
 let cors = require('cors');
-/*let Participant = require('../models/participant');
-let Customer = require('../models/customer');
-let Campaign = require('../models/campaign');
-let Commission = require('../models/commission');
-let Click = require('../models/click');
-let campaignCron = require('../config/campaign-cron');
-let webhook = require('../lib/webhook');*/
 
 let startApp = function(app, callback=null){
     let debug = require('debug')('testpassport:server');

@@ -57,15 +57,14 @@ module.exports = function(router) {
         }
     });
 
-    router.post("/campaign", auth(), function (req, res, next) {
+    router.post("/campaign", auth(), async function (req, res, next) {
         //req.body.user_id = req.user.get("id");
         req.body.name = req.body.name.toLowerCase();
+        let campaign = (await Campaign.find({'name': req.body.name}))[0];
 
-        Campaign.findAll("name", req.body.name, (campaigns) => {
-            if (campaigns && campaigns.length > 0) {
-                return res.status(400).json({error: "Campaign name already in use"});
-            }
-        });
+        if (campaign.data) {
+            return res.status(400).json({ error: "Campaign name already in use" });
+        }
 
         let newCampaign = new Campaign(req.body);
         newCampaign.set("published", true);
