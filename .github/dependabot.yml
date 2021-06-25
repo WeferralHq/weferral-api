@@ -1,0 +1,25 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: nanoid
+    versions:
+    - 3.1.20
+    - 3.1.21
+  - dependency-name: urijs
+    versions:
+    - 1.19.5
+    - 1.19.6
+  - dependency-name: "@koa/cors"
+    versions:
+    - 3.1.0
+  - dependency-name: mongoose
+    versions:
+    - 5.7.5
+  - dependency-name: yenv
+    versions:
+    - 2.1.1
