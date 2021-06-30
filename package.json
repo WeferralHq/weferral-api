@@ -69,7 +69,7 @@
         "cross-env": "^5.2.0",
         "factory-girl": "^5.0.4",
         "chance": "^1.0.6",
-        "nodemon": "^1.19.1",
+        "nodemon": "^2.0.8",
         "prettier": "^1.15.3"
     },
     "prettier": {
